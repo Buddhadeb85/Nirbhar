@@ -1,6 +1,6 @@
-# Friendly 🚀
+# Nirbhar 🚀
 
-**Friendly** is a personal growth and financial-freedom web application designed to help individuals
+**Nirbhar** is a personal growth and financial-freedom web application designed to help individuals
 manage money, build wealth, track progress, and grow knowledge in a structured and simple way.
 
 The goal of Friendly is to bring **budgeting, investing, planning, and personal development tools**
@@ -12,7 +12,7 @@ into one unified platform.
 
 > Achieve financial freedom through disciplined budgeting, expense tracking,
 smart investing, corpus building, and continuous personal development.
-
+Rename project to Nirbhar
 ---
 
 ## 🧰 Features & Tools (Planned)
