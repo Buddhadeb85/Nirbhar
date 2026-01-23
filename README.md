@@ -54,3 +54,49 @@ to your overall financial and personal growth journey.
 ---
 
 ## 📂 Project Structure (Planned)
+
+---
+
+## 🚧 Project Status
+
+🟡 **Under active development**
+
+Current focus:
+- Core project setup
+- Dashboard layout
+- Budget Planner module
+- Routing & navigation
+
+---
+
+## 🎯 Roadmap
+
+- [ ] Dashboard UI
+- [ ] Budget Planner
+- [ ] Income & Expense Tracker
+- [ ] Investment Calculator
+- [ ] Stock Selection Tool
+- [ ] Business & CRM tools
+- [ ] Personal development modules
+- [ ] Database integration
+- [ ] Deployment
+
+---
+
+## 🤝 Contribution
+
+Contributions, suggestions, and feedback are welcome.
+This project is built with learning and long-term growth in mind.
+
+---
+
+## 👤 Author
+
+**Buddhadeb Das**  
+GitHub: https://github.com/Buddhadeb85
+
+---
+
+## 📜 License
+
+License will be added soon.
