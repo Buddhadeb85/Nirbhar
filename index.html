@@ -1,12 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Nirbhar</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>Nirbhar – Financial Freedom</title>
+  <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-  <h1>Nirbhar</h1>
-  <p>Achieve financial freedom 🚀</p>
+
+  <!-- HEADER -->
+  <header class="header">
+    <h1>Nirbhar</h1>
+    <p>Build Financial Freedom & Personal Growth</p>
+  </header>
+
+  <!-- NAVIGATION -->
+  <nav class="nav">
+    <a href="#">Home</a>
+    <a href="#">Budget</a>
+    <a href="#">Investments</a>
+    <a href="#">Growth</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <section class="card">
+      <h2>💰 Budget Planner</h2>
+      
+      <label>Monthly Income</label>
+      <input type="number" id="income" placeholder="Enter income">
+      
+      <label>Monthly Expenses</label>
+      <input type="number" id="expenses" placeholder="Enter expenses">
+      
+      <button onclick="calculateBudget()">Calculate</button>
+      
+      <p id="result"></p>
+      
+    </section>
+
+
+    <section class="card">
+      <h2>📈 Investment Calculator</h2>
+      <p>Understand returns and grow your corpus.</p>
+    </section>
+
+    <section class="card">
+      <h2>📚 Personal Development</h2>
+      <p>Track learning, books, and achievements.</p>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>© 2026 Nirbhar | Built by Buddhadeb</p>
+  </footer>
+
+  <script src="scripts/main.js"></script>
 </body>
 </html>
