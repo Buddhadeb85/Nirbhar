@@ -1,4 +1,49 @@
 /* ── Existing styles (unchanged) ── */
+/* Reset & global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f8f9fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+header {
+  background: #0d47a1;
+  color: white;
+  text-align: center;
+  padding: 2rem;
+}
+
+.card {
+  max-width: 500px;
+  margin: 3rem auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+button {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 0.9rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #1565c0;
+}
 /* ... (keep all previous styles from header, nav, main, card, etc.) ... */
 
 /* ── Enhanced Budget Planner specific styles ── */
