@@ -2,8 +2,41 @@
 // Existing Age Calculator (unchanged)
 // ──────────────────────────────────────────────
 function calculateAge() {
-  // ... (keep as is)
-}
+            const dobInput = document.getElementById("dob").value;
+            const resultDiv = document.getElementById("result");
+
+            if (!dobInput) {
+                resultDiv.innerHTML = "<span class='error'>Please select your date of birth!</span>";
+                return;
+            }
+
+            const birthDate = new Date(dobInput);
+            const today = new Date();
+
+            if (birthDate > today) {
+                resultDiv.innerHTML = "<span class='error'>Date of birth cannot be in the future!</span>";
+                return;
+            }
+
+            let years = today.getFullYear() - birthDate.getFullYear();
+            let months = today.getMonth() - birthDate.getMonth();
+            let days = today.getDate() - birthDate.getDate();
+
+            // Adjust if days or months are negative
+            if (days < 0) {
+                months--;
+                days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            resultDiv.innerHTML = `Your age is:<br>
+                                   <strong>${years}</strong> years, 
+                                   <strong>${months}</strong> months, 
+                                   <strong>${days}</strong> days`;
+        }
 
 // ──────────────────────────────────────────────
 // NEW: Enhanced Budget Planner Logic
