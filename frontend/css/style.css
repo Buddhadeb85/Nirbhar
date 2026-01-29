@@ -69,3 +69,34 @@ button {
 button:hover {
   background-color: #1e40af;
 }
+
+.iframe-container {
+    width: 100%;
+    min-height: 400px;           /* fallback so it doesn't collapse */
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;            /* prevents inner scrollbar bleed */
+    margin: 10px 0;
+}
+
+/* Make sure container takes available space */
+.page {
+    flex: 1 1 auto;              /* grow and shrink nicely */
+    display: flex;
+    flex-direction: column;
+}
+
+.iframe-container iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;           /* important fallback */
+    border: none;
+}
+
+/* Optional: better mobile feel */
+@media (max-width: 480px) {
+    .iframe-container {
+        min-height: 50vh;        /* at least half screen height */
+    }
+}
