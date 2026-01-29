@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        /* Top Bar */
+        .top-bar {
+            background-color: #4a6cf7;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .top-bar .profile-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #fff;
+            border-radius: 50%;
+            background-image: url('https://via.placeholder.com/40?text=U');
+            background-size: cover;
+        }
+        .top-bar .app-name {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .top-bar .settings {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Quick Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+            gap: 1px;
+            padding: 5px;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .card .icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .card .label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .card .value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .card.balance { border-left: 5px solid #4a6cf7; }
+        .card.income { border-left: 5px solid #28a745; }
+        .card.expenses { border-left: 5px solid #dc3545; }
+        .card.registers { border-left: 5px solid #ffc107; }
+
+        /* Main Buttons */
+        .main-buttons {
+            padding: 20px;
+            flex: 1;
+        }
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .btn {
+            background-color: #f8f9fa;
+            border: none;
+            border-radius: 12px;
+            padding: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #444;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .btn .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        /* Bottom Nav Bar */
+        .bottom-nav {
+            background-color: #fff;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            position: sticky;
+            bottom: 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        .nav-item {
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            padding: 8px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .nav-item.active {
+            color: #4a6cf7;
+        }
+        .nav-item .icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Page Sections */
+        .page {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            flex-direction: column;
+        }
+        .page.active {
+            display: flex;
+        }
+        .page h2 {
+            text-align: center;
+            color: #4a6cf7;
+            margin-bottom: 20px;
+        }
+        .placeholder-content {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="profile-icon"></div>
+            <div class="app-name">My Finance Manager</div>
+            <div class="settings">⚙️</div>
+        </div>
+
+        <!-- Pages -->
+        <div id="home-page" class="page active">
+            <!-- Quick Summary Cards -->
+            <div class="summary-cards">
+                <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="back.html">  <!-- This line does the auto-loading -->
+            </iframe>
+            </div>
+            <div class="summary-cards">
+                <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="b&c.html">  <!-- This line does the auto-loading -->
+            </iframe>
+            </div>
+
+            <!-- Main Buttons -->
+            <div class="main-buttons">
+                <div class="buttons-grid">
+                    <button class="btn" onclick="navigateTo('books-page')">
+                        <div class="icon">📚</div>
+                        Books & Courses
+                    </button>
+                    <button class="btn" onclick="navigateTo('investment-page')">
+                        <div class="icon">💲</div>
+                        Investment Calculator
+                    </button>
+                    <button class="btn" onclick="navigateTo('travelling-page')">
+                        <div class="icon">🛵</div>
+                        Travelling
+                    </button>
+                    <button class="btn" onclick="navigateTo('crm-page')">
+                        <div class="icon">💼</div>
+                        CRM / Leads
+                    </button>
+                    <button class="btn" onclick="navigateTo('age-page')">
+                        <div class="icon">📅</div>
+                        Age Calculator
+                    </button>
+                    <button class="btn" onclick="navigateTo('budget-page')">
+                        <div class="icon">📒</div>
+                        Budget Planner
+                    </button>
+                    <button class="btn" onclick="navigateTo('goal-page')">
+                        <div class="icon">🎯</div>
+                        Goals and Achievements
+                    </button>
+                    <button class="btn" onclick="navigateTo('business-page')">
+                        <div class="icon">👩🏻‍💻</div>
+                        Manage Business
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="investment-page" class="page">
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="sip.html">  <!-- This line does the auto-loading -->
+            </iframe>
+        </div>
+
+        <div id="books-page" class="page">
+            
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="books & course.html">  <!-- This line does the auto-loading -->
+            </iframe>
+        </div>
+        <div id="crm-page" class="page">
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="crm.html">  <!-- This line does the auto-loading -->
+           </iframe>
+        </div>
+        <div id="age-page" class="page">
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="age calculator .html">  <!-- This line does the auto-loading -->
+            </iframe>
+        </div>
+        <div id="budget-page" class="page">
+            
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="Bba.html">  <!-- This line does the auto-loading -->
+            </iframe>
+        </div>
+
+        <div id="reports-page" class="page">
+            
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="Bbb.html#reports">  <!-- This line does the auto-loading -->
+            </iframe>
+        </div>
+        <div id="travelling-page" class="page">
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="travelling.html">  <!-- This line does the auto-loading -->
+            </iframe>
+        </div>
+        <div id="registers-page" class="page">
+            
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="Bbb.html#register">  <!-- This line does the auto-loading -->
+            </iframe>
+        </div>
+        <div id="add-page" class="page">
+            
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="Bbb.html#add-transaction">  <!-- This line does the auto-loading -->
+            </iframe>
+        </div>
+        <div id="goal-page" class="page">
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="compare.html">  <!-- This line does the auto-loading -->
+            </iframe>
+        </div>
+        <div id="business-page" class="page">
+            <iframe id="myFrame" 
+                width="100%" 
+                height="500px" 
+                style="border: 1px solid #ccc; border-radius: 8px;"
+                src="BBD1.html">  <!-- This line does the auto-loading -->
+            </iframe>
+        </div>
+
+        <div id="more-page" class="page">
+            <h2>More Options</h2>
+            <p class="placeholder-content">Settings, Profile, Help, etc.</p>
+        </div>
+
+        <!-- Bottom Nav Bar -->
+        <div class="bottom-nav">
+            <div class="nav-item active" data-page="home-page">
+                <div class="icon">🏠</div>
+                Home
+            </div>
+            <div class="nav-item" data-page="registers-page">
+                <div class="icon">📚</div>
+                Registers
+            </div>
+            <div class="nav-item" data-page="add-page">
+                <div class="icon">➕</div>
+                Add
+            </div>
+            <div class="nav-item" data-page="reports-page">
+                <div class="icon">📊</div>
+                Reports
+            </div>
+            <div class="nav-item" data-page="more-page">
+                <div class="icon">☰</div>
+                More
+            </div>
+            <div class="nav-item" id="back-nav-item">
+                <div class="icon">🔙</div>
+                Back
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 'home-page';
+
+        // Function to update the back button appearance and behavior
+        function updateBackButton() {
+            const backItem = document.getElementById('back-nav-item');
+
+            if (currentPage === 'home-page') {
+                // On Home: hide or disable Back button (we'll just remove active and keep it neutral)
+                backItem.classList.remove('active');
+                backItem.style.opacity = '0.5';
+                backItem.style.pointerEvents = 'none'; // disable click
+            } else {
+                // On any other page: show active Back button that goes to Home
+                backItem.classList.add('active');
+                backItem.style.opacity = '1';
+                backItem.style.pointerEvents = 'auto';
+            }
+        }
+
+        function navigateTo(pageId) {
+            // Hide current page
+            document.getElementById(currentPage).classList.remove('active');
+            // Show new page
+            document.getElementById(pageId).classList.add('active');
+            currentPage = pageId;
+
+            // Update active state for fixed nav items
+            document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+                item.classList.remove('active');
+            });
+            const targetNav = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+            if (targetNav) {
+                targetNav.classList.add('active');
+            }
+
+            // Update the Back button
+            updateBackButton();
+        }
+
+        // Click handlers for main nav items
+        document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+            item.addEventListener('click', () => {
+                const page = item.getAttribute('data-page');
+                navigateTo(page);
+            });
+        });
+
+        // Back button always goes to Home
+        document.getElementById('back-nav-item').addEventListener('click', () => {
+            if (currentPage !== 'home-page') {
+                navigateTo('home-page');
+            }
+        });
+
+        // Initial setup
+        updateBackButton();
+    
+    </script>
+</body>
+</html>
