@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nirbhar – Financial Freedom</title>
-  <link rel="stylesheet" href="frontend/css/style.css">
+  <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
 
@@ -25,64 +24,21 @@
   <!-- MAIN CONTENT -->
   <main class="main">
 
-    <!-- ── Enhanced Budget Planner Card (Tabbed Interface) ── -->
-    <section class="card budget-card">
-      <h2>💰 Automatic Budget Planner</h2>
-      <p>Smart budgeting tool for Indian families in Durgapur or similar areas. Enter details for personalized allocations.</p>
-
-      <div class="tabs">
-        <button class="tab-button active" onclick="openTab(event, 'Input')">Input Details</button>
-        <button class="tab-button" onclick="openTab(event, 'Monthly')">Monthly Budget</button>
-        <button class="tab-button" onclick="openTab(event, 'Yearly')">Yearly Summary</button>
-        <button class="tab-button" onclick="openTab(event, 'Tips')">Tips & Investments</button>
-        <button class="tab-button" onclick="openTab(event, 'Future')">Future Ideas</button>
-      </div>
-
-      <div id="Input" class="tab-content active">
-        <form id="budgetForm">
-          <label for="annualSalary">Annual Salary (in ₹):</label>
-          <input type="number" id="annualSalary" value="500000" required min="100000">
-          
-          <label for="numDependents">Number of Dependents:</label>
-          <input type="number" id="numDependents" value="5" required min="0">
-          
-          <label for="dependentDetails">Dependent Details (e.g., 2 seniors, 2 children, 1 spouse):</label>
-          <input type="text" id="dependentDetails" value="2 senior citizens, 2 schooling children, 1 housewife" required>
-          
-          <label for="location">Location (e.g., Tier-2 city, Mumbai, Rural):</label>
-          <input type="text" id="location" value="Durgapur" required>
-          
-          <button type="submit">Calculate Budget</button>
-        </form>
-      </div>
-
-      <div id="Monthly" class="tab-content">
-        <div id="monthlyOutput"></div>
-      </div>
-
-      <div id="Yearly" class="tab-content">
-        <div id="yearlyOutput"></div>
-      </div>
-
-      <div id="Tips" class="tab-content">
-        <div class="tips-section" id="tipsSection"></div>
-      </div>
-
-      <div id="Future" class="tab-content">
-        <div class="future-ideas" id="futureSection"></div>
-      </div>
-    </section>
-
-    <!-- ── Age Calculator Card (unchanged) ── -->
     <section class="card">
-      <h2>🎂 Age & Life Milestones</h2>
-      <label for="dob">Enter your Date of Birth</label>
-      <input type="date" id="dob" required>
-
-      <button onclick="calculateAge()">Calculate Age</button>
-
-      <div id="age-result"></div>
+      <h2>💰 Budget Planner</h2>
+      
+      <label>Monthly Income</label>
+      <input type="number" id="income" placeholder="Enter income">
+      
+      <label>Monthly Expenses</label>
+      <input type="number" id="expenses" placeholder="Enter expenses">
+      
+      <button onclick="calculateBudget()">Calculate</button>
+      
+      <p id="result"></p>
+      
     </section>
+
 
     <section class="card">
       <h2>📈 Investment Calculator</h2>
@@ -101,6 +57,6 @@
     <p>© 2026 Nirbhar | Built by Buddhadeb</p>
   </footer>
 
-  <script src="frontend/js/main.js"></script>
+  <script src="scripts/main.js"></script>
 </body>
 </html>
