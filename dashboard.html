@@ -92,6 +92,16 @@
             <div class="label">Active Expense Categories</div>
             <div class="value" id="activeCategories">0</div>
         </div>
+<div class="card corpus">
+            <div class="icon">📈</div>
+            <div class="label">Total Corpus</div>
+            <div class="value" id="totalCorpus">₹0.00</div>
+        </div>
+        <div class="card loan">
+            <div class="icon">📉</div>
+            <div class="label">Total Loan</div>
+            <div class="value" id="totalLoan">₹0.00</div>
+        </div>
     </div>
 
     
@@ -116,6 +126,8 @@
             let totalIncome = 0;
             let totalExpenses = 0;
             let overallBalance = 0;
+            let totalCorpus = 0;
+            let totalLoan = 0;
 
             transactions.forEach(trans => {
                 if (trans.type === 'income') {
@@ -131,6 +143,22 @@
                 }
             });
 
+transactions.forEach(trans => {
+                if (trans.type === 'investment') {
+                    totalCorpus += trans.amount;
+                    if (new Date(trans.date).getMonth() === currentMonth && new Date(trans.date).getFullYear() === currentYear) {
+                        totalInvestment += trans.amount;
+                    }
+                } else {
+                    totalCorpus -= trans.amount;
+                    if (new Date(trans.date).getMonth() === currentMonth && new Date(trans.date).getFullYear() === currentYear) {
+                        totalLoan += trans.amount;
+                    }
+                }
+            });
+
+
+
             // Unique expense categories used (active registers)
             const expenseCategories = new Set();
             transactions.filter(t => t.type === 'expense').forEach(t => expenseCategories.add(t.category));
@@ -141,6 +169,9 @@
             document.getElementById('monthlyIncome').textContent = `₹${totalIncome.toFixed(2)}`;
             document.getElementById('monthlyExpenses').textContent = `₹${totalExpenses.toFixed(2)}`;
             document.getElementById('activeCategories').textContent = activeCount;
+
+document.getElementById('monthlyInvestment').textContent = `₹${totalCorpus.toFixed(2)}`;
+            document.getElementById('monthlyLoan').textContent = `₹${totalLoan.toFixed(2)}`;
         }
 
         // Load on page open
