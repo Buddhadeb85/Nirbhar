@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Budget Breach Status</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        padding: 15px;
+    }
+    h2 {
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: white;
+    }
+    th, td {
+        padding: 8px;
+        border: 1px solid #ccc;
+        text-align: center;
+    }
+    th {
+        background: #eee;
+    }
+    .green {
+        background: #d4edda;
+        color: #155724;
+        font-weight: bold;
+    }
+    .yellow {
+        background: #fff3cd;
+        color: #856404;
+        font-weight: bold;
+    }
+    .red {
+        background: #f8d7da;
+        color: #721c24;
+        font-weight: bold;
+    }
+    .note {
+        margin-top: 20px;
+        padding: 15px;
+        background: white;
+        border-left: 5px solid #2196F3;
+    }
+</style>
+</head>
+
+<body>
+
+<h2>📊 Monthly Budget Status</h2>
+
+<table>
+<thead>
+<tr>
+    <th>Category</th>
+    <th>Budget (₹)</th>
+    <th>Actual Spent (₹)</th>
+    <th>Usage %</th>
+    <th>Status</th>
+</tr>
+</thead>
+<tbody id="statusTable"></tbody>
+</table>
+
+<div class="note">
+    <strong>Status Meaning:</strong><br>
+    🟢 On Track: Spending under control<br>
+    🟡 Manageable: Near budget limit, be careful<br>
+    🔴 Danger: Budget breached – action required
+</div>
+
+<script>
+/* =========================
+   1. LOAD EXPENSE DATA
+========================= */
+const transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+
+/* =========================
+   2. MONTHLY BUDGET RULES
+   (Same logic as budget page)
+========================= */
+const monthlyIncome = 500000 / 12; // Example (₹41,667)
+
+const budgetPercentages = {
+    "Food": 30,
+    "Rent": 25,
+    "Travelling": 6,
+    "Medical": 15,
+    "School-fee": 15,
+    "Clothing": 5,
+    "EMI": 20,
+    "Investment": 6,
+    "Other": 5
+};
+
+/* =========================
+   3. CALCULATE BUDGET ₹
+========================= */
+const budgetAmount = {};
+for (let key in budgetPercentages) {
+    budgetAmount[key] = Math.round(monthlyIncome * budgetPercentages[key] / 100);
+}
+
+/* =========================
+   4. CALCULATE ACTUAL EXPENSES
+========================= */
+const actualExpense = {};
+transactions
+    .filter(t => t.type === "expense")
+    .forEach(t => {
+        actualExpense[t.category] = (actualExpense[t.category] || 0) + t.amount;
+    });
+
+/* =========================
+   5. COMPARE & RENDER
+========================= */
+const tbody = document.getElementById("statusTable");
+
+for (let category in budgetAmount) {
+
+    const budget = budgetAmount[category];
+    const spent = actualExpense[category] || 0;
+    const usage = budget === 0 ? 0 : Math.round((spent / budget) * 100);
+
+    let statusText = "On Track";
+    let statusClass = "green";
+
+    if (usage > 110) {
+        statusText = "Danger";
+        statusClass = "red";
+    } else if (usage >= 90) {
+        statusText = "Manageable";
+        statusClass = "yellow";
+    }
+
+    const row = document.createElement("tr");
+    row.className = statusClass;
+    row.innerHTML = `
+        <td>${category}</td>
+        <td>₹${budget.toLocaleString()}</td>
+        <td>₹${spent.toLocaleString()}</td>
+        <td>${usage}%</td>
+        <td>${statusText}</td>
+    `;
+    tbody.appendChild(row);
+}
+</script>
+
+</body>
+</html>
