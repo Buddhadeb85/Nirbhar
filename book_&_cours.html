@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personal Development Book Summaries</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+      margin: 0;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 50px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .book-list {
+      display: grid;
+      gap: 25px;
+    }
+    .book-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    .book-card:hover {
+      transform: translateY(-5px);
+    }
+    .book-header {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .book-icon {
+      font-size: 48px;
+    }
+    .book-info h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    .book-info p {
+      margin: 5px 0 0;
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+    .arrow {
+      margin-left: auto;
+      font-size: 28px;
+      transition: transform 0.3s ease;
+    }
+    .arrow.rotated {
+      transform: rotate(180deg);
+    }
+
+    .main-points {
+      padding: 20px;
+      display: none;
+      background: #f8f9fa;
+    }
+    .main-points.open {
+      display: block;
+    }
+    .point-item {
+      background: white;
+      margin: 15px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .point-header {
+      padding: 15px;
+      background: #e9ecef;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      user-select: none;
+    }
+    .point-header:hover {
+      background: #dee2e6;
+    }
+    .point-arrow {
+      font-size: 20px;
+      transition: transform 0.3s ease;
+    }
+    .point-arrow.rotated {
+      transform: rotate(180deg);
+    }
+    .point-detail {
+      padding: 20px;
+      background: white;
+      display: none;
+    }
+    .point-detail.open {
+      display: block;
+    }
+    .point-detail ol {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+    .point-detail li {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Personal Development Book Summaries</h1>
+    <div class="book-list" id="bookList"></div>
+  </div>
+
+  <script>
+    const books = [
+      {
+        title: "Rich Dad Poor Dad",
+        author: "Robert T. Kiyosaki",
+        icon: "💰",
+        about: "Contrasts financial mindsets of two father figures and teaches building wealth through assets, not just income.",
+        mainPoints: [
+          {
+            title: "Assets vs Liabilities",
+            detail: `<ol>
+              <li>The rich buy assets that put money in their pocket (stocks, real estate, businesses).</li>
+              <li>The poor and middle class buy liabilities they think are assets (big houses, luxury cars).</li>
+              <li>True wealth is measured by how long you can survive without working.</li>
+              <li>Focus on acquiring income-generating assets first.</li>
+              <li>Financial freedom comes when passive income exceeds expenses.</li>
+            </ol>`
+          },
+          {
+            title: "Financial Education",
+            detail: `<ol>
+              <li>Schools don't teach money — you must seek financial intelligence yourself.</li>
+              <li>Understand accounting, investing, markets, and laws.</li>
+              <li>Learn to read financial statements (balance sheet, income statement).</li>
+              <li>Know the difference between good debt (buys assets) and bad debt.</li>
+              <li>Money works for the financially educated; others work for money.</li>
+            </ol>`
+          },
+          {
+            title: "Mind Your Own Business",
+            detail: `<ol>
+              <li>Don't just work for a job — build your own asset column.</li>
+              <li>Keep your day job but start acquiring assets on the side.</li>
+              <li>Corporations are powerful tools for wealth building (tax advantages).</li>
+              <li>Entrepreneurs solve problems and get rewarded greatly.</li>
+              <li>Work to learn, not just to earn (gain skills that build wealth).</li>
+            </ol>`
+          },
+          {
+            title: "The Rich Don't Work for Money",
+            detail: `<ol>
+              <li>Emotions (fear & greed) control most people's financial decisions.</li>
+              <li>Break free from the rat race by controlling emotions.</li>
+              <li>Use money as a tool, not a master.</li>
+              <li>Take calculated risks instead of playing it safe.</li>
+              <li>Opportunity often comes disguised as hard work.</li>
+            </ol>`
+          }
+        ]
+      }
+  ,
+  {
+    title: "Atomic Habits",
+    author: "James Clear",
+    icon: "🧠",
+    about: "An easy and proven way to build good habits and break bad ones through tiny changes.",
+    mainPoints: [
+      {
+        title: "The 1% Better Rule",
+        detail: `<ol>
+          <li>Get 1% better every day — small improvements compound over time.</li>
+          <li>Focus on systems (habits) rather than goals.</li>
+          <li>Habits are the compound interest of self-improvement.</li>
+          <li>A slight change in daily habits can guide your life to a very different destination.</li>
+          <li>Success is the product of daily habits, not once-in-a-lifetime transformations.</li>
+        </ol>`
+      },
+      {
+        title: "The Four Laws of Behavior Change",
+        detail: `<ol>
+          <li>Make it obvious (Cue)</li>
+          <li>Make it attractive (Craving)</li>
+          <li>Make it easy (Response)</li>
+          <li>Make it satisfying (Reward)</li>
+          <li>Invert the laws to break bad habits: Make it invisible, unattractive, difficult, unsatisfying.</li>
+        </ol>`
+      },
+      {
+        title: "Habit Stacking and Environment Design",
+        detail: `<ol>
+          <li>Link a new habit to an existing one: “After [current habit], I will [new habit].”</li>
+          <li>Design your environment to make good habits obvious and easy.</li>
+          <li>Remove triggers for bad habits (e.g., hide junk food, uninstall distracting apps).</li>
+          <li>Use implementation intentions: “I will [behavior] at [time] in [location].”</li>
+          <li>Prime your environment for future success.</li>
+        </ol>`
+      },
+      {
+        title: "The Power of Identity",
+        detail: `<ol>
+          <li>Focus on who you wish to become, not what you want to achieve.</li>
+          <li>Every action is a vote for the type of person you want to become.</li>
+          <li>True behavior change is identity change.</li>
+          <li>Decide the type of person you want to be and prove it to yourself with small wins.</li>
+          <li>The most effective way to change your habits is to focus on identity first.</li>
+        </ol>`
+      },
+      {
+        title: "Track and Stay Accountable",
+        detail: `<ol>
+          <li>Never miss twice — if you miss one day, get back on track immediately.</li>
+          <li>Measure your habits to stay aware and motivated.</li>
+          <li>Use habit tracking (simple checklist or app).</li>
+          <li>Have an accountability partner or make habits public.</li>
+          <li>The process of building habits is about becoming consistent, not perfect.</li>
+        </ol>`
+      }
+    ]
+  }
+  ,
+  {
+    title: "The Millionaire Next Door",
+    author: "Thomas J. Stanley and William D. Danko",
+    icon: "🏠",
+    about: "The surprising secrets of America's wealthy — based on decades of research into real millionaires.",
+    mainPoints: [
+      {
+        title: "Most Millionaires Live Frugally",
+        detail: `<ol>
+          <li>Most millionaires live well below their means and are not flashy spenders.</li>
+          <li>They typically live in middle-class neighborhoods, drive regular cars, and wear ordinary clothes.</li>
+          <li>Wealth is often invisible — you wouldn't recognize most millionaires by appearance.</li>
+          <li>They prioritize financial independence over displaying high social status.</li>
+          <li>Frugality and discipline are far more common among the wealthy than extravagance.</li>
+        </ol>`
+      },
+      {
+        title: "They Are Proficient Budgeters and Investors",
+        detail: `<ol>
+          <li>Millionaires allocate time and money efficiently — they plan and track expenses.</li>
+          <li>They invest consistently and live on less than they earn.</li>
+          <li>They believe financial independence is more important than showing off wealth.</li>
+          <li>They avoid consumer debt and rarely use credit cards for purchases they can't pay off.</li>
+          <li>They focus on building net worth through long-term disciplined investing.</li>
+        </ol>`
+      },
+      {
+        title: "They Own Their Own Businesses",
+        detail: `<ol>
+          <li>Most millionaires are self-employed or business owners.</li>
+          <li>They often run dull, normal businesses (e.g., pest control, welding, laundry services).</li>
+          <li>They chose financial independence over prestigious or glamorous careers.</li>
+          <li>Many are first-generation wealthy — they didn't inherit money.</li>
+          <li>They work hard, take calculated risks, and build equity in their businesses.</li>
+        </ol>`
+      },
+      {
+        title: "Economic Outpatient Care Hurts Children",
+        detail: `<ol>
+          <li>Giving large financial gifts to adult children often reduces their motivation to build wealth.</li>
+          <li>Wealthy parents who provide too much support create financially dependent children.</li>
+          <li>Children of affluent parents often underachieve economically compared to self-made people.</li>
+          <li>Teaching financial discipline is more valuable than giving money.</li>
+          <li>Millionaires raise financially independent and responsible children.</li>
+        </ol>`
+      },
+      {
+        title: "The Seven Common Traits of Millionaires",
+        detail: `<ol>
+          <li>They live below their means.</li>
+          <li>They allocate time, energy, and money efficiently toward building wealth.</li>
+          <li>They believe financial independence is more important than status.</li>
+          <li>Their parents did not provide economic outpatient care.</li>
+          <li>Their adult children are economically self-sufficient.</li>
+        </ol>`
+      }
+    ]
+  },
+  {
+    title: "The Lean Startup",
+    author: "Eric Ries",
+    icon: "🚀",
+    about: "A scientific approach to creating and managing successful startups in an age of uncertainty.",
+    mainPoints: [
+      {
+        title: "Build-Measure-Learn Feedback Loop",
+        detail: `<ol>
+          <li>The fundamental activity of a startup is to turn ideas into products quickly.</li>
+          <li>Measure how customers respond using real data.</li>
+          <li>Learn whether to pivot or persevere based on validated learning.</li>
+          <li>Speed through this loop is the key to success.</li>
+          <li>Minimize the total time through the loop to reduce waste.</li>
+        </ol>`
+      },
+      {
+        title: "Minimum Viable Product (MVP)",
+        detail: `<ol>
+          <li>Build the simplest version of your product that allows you to start the learning process.</li>
+          <li>The goal of MVP is to test fundamental business hypotheses.</li>
+          <li>Use MVP to get real customer feedback as fast as possible.</li>
+          <li>Don't wait for perfection — launch early and iterate.</li>
+          <li>Many famous products started as simple MVPs (e.g., Dropbox video demo).</li>
+        </ol>`
+      },
+      {
+        title: "Validated Learning",
+        detail: `<ol>
+          <li>Startups exist to learn how to build a sustainable business.</li>
+          <li>Learning must be validated by empirical data, not opinions.</li>
+          <li>Use actionable metrics (e.g., user engagement) instead of vanity metrics (e.g., total downloads).</li>
+          <li>Run experiments to test your leap-of-faith assumptions.</li>
+          <li>Scientific method applied to entrepreneurship.</li>
+        </ol>`
+      },
+      {
+        title: "Pivot or Persevere",
+        detail: `<ol>
+          <li>Regularly review progress using innovation accounting.</li>
+          <li>Decide whether to change direction (pivot) or stay the course (persevere).</li>
+          <li>Common pivots: zoom-in, customer segment, platform, business architecture, etc.</li>
+          <li>Pivoting early saves time and money.</li>
+          <li>Successful startups pivot multiple times before finding product-market fit.</li>
+        </ol>`
+      },
+      {
+        title: "Innovation Accounting & Small Batches",
+        detail: `<ol>
+          <li>Establish baselines, tune the engine, then improve metrics.</li>
+          <li>Work in small batches to reduce waste and increase flexibility.</li>
+          <li>Use the Five Whys technique to find root causes of problems.</li>
+          <li>Apply lean thinking from manufacturing to startups.</li>
+          <li>Sustainable growth comes from existing customers and repeatable processes.</li>
+        </ol>`
+      }
+    ]
+  },
+  {
+    title: "Zero to One",
+    author: "Peter Thiel with Blake Masters",
+    icon: "💡",
+    about: "Notes on startups, or how to build the future — creating breakthrough innovation instead of copying what already works.",
+    mainPoints: [
+      {
+        title: "From 0 to 1 vs 1 to n",
+        detail: `<ol>
+          <li>Vertical progress (0 to 1) is doing something completely new — creating breakthrough technology.</li>
+          <li>Horizontal progress (1 to n) is copying things that work — globalization.</li>
+          <li>Startups must focus on creating new things (0 to 1), not just competing in existing markets.</li>
+          <li>Technology is far more powerful than globalization for creating value.</li>
+          <li>Every great company is built around a secret that most people don't see.</li>
+        </ol>`
+      },
+      {
+        title: "Definite vs Indefinite Optimism",
+        detail: `<ol>
+          <li>Definite optimism: Plan and build the future deliberately (e.g., 1950s America).</li>
+          <li>Indefinite optimism: Believe the future will be better but without a specific plan (today's mindset).</li>
+          <li>Successful founders are definitely optimistic — they have a clear vision and execute it.</li>
+          <li>Indefinite thinking leads to incrementalism and lack of bold innovation.</li>
+          <li>Great companies have a definite view of the future they are creating.</li>
+        </ol>`
+      },
+      {
+        title: "Monopoly vs Competition",
+        detail: `<ol>
+          <li>Competition is for losers — it destroys profits.</li>
+          <li>Build a monopoly by starting small and dominating a niche, then expand.</li>
+          <li>Monopolies are good: they earn lasting profits and can plan long-term.</li>
+          <li>Monopolists lie to protect their position (say it's competitive); competitors exaggerate differences.</li>
+          <li>Escape competition by creating something 10x better or entirely new.</li>
+        </ol>`
+      },
+      {
+        title: "The Power Law",
+        detail: `<ol>
+          <li>Venture capital returns follow a power law — one big winner pays for all losses.</li>
+          <li>Most value in startups comes from a few exceptional companies.</li>
+          <li>Focus on finding and building the outliers, not averages.</li>
+          <li>Every important aspect of a business (people, distribution, technology) should follow the power law.</li>
+          <li>Don't diversify — concentrate on your best opportunity.</li>
+        </ol>`
+      },
+      {
+        title: "Secrets and Foundations",
+        detail: `<ol>
+          <li>Great companies are built on secrets — hard truths others haven't discovered.</li>
+          <li>Look for secrets in nature, people, or unconventional places.</li>
+          <li>Strong foundations: small team, aligned incentives, clear ownership.</li>
+          <li>Choose co-founders carefully — like marriage.</li>
+          <li>A company is the group of people who agree to build a specific future together.</li>
+        </ol>`
+      }
+    ]
+  },
+  {
+    title: "To Sell Is Human",
+    author: "Daniel H. Pink",
+    icon: "🤝",
+    about: "The surprising truth about moving others — we're all in sales now, and here's how to do it better in the modern world.",
+    mainPoints: [
+      {
+        title: "We're All in Sales Now",
+        detail: `<ol>
+          <li>Traditional sales (buyer beware) has shifted to non-sales selling (moving others).</li>
+          <li>One in nine people work in sales, but the other eight also spend time persuading, influencing, and convincing.</li>
+          <li>Education and healthcare workers spend 40% of their time in non-sales selling.</li>
+          <li>In the information age, the ability to move others is a critical skill for everyone.</li>
+          <li>Selling is now more human — based on service and understanding rather than manipulation.</li>
+        </ol>`
+      },
+      {
+        title: "From ABC to Attunement, Buoyancy, Clarity",
+        detail: `<ol>
+          <li>Old ABC was “Always Be Closing” — aggressive and pushy.</li>
+          <li>New ABC: Attunement (perspective-taking), Buoyancy (staying afloat amid rejection), Clarity (problem-finding).</li>
+          <li>Attunement: See situations from the other person's perspective and reduce your ego.</li>
+          <li>Buoyancy: Stay positive through rejection using interrogative self-talk (“Can I do this?”).</li>
+          <li>Clarity: Help others identify problems they didn't know they had (problem-finding > problem-solving).</li>
+        </ol>`
+      },
+      {
+        title: "Pitch Like a Pro",
+        detail: `<ol>
+          <li>The best pitches are short, contextual, and invite participation.</li>
+          <li>Six modern pitch types: One-word (e.g., Priceline = “Name your own price”), Question, Rhyming, Subject line, Twitter, Pixar (story structure).</li>
+          <li>The Pixar pitch template: Once upon a time... Every day... One day... Because of that... Until finally...</li>
+          <li>Good pitches make people curious and encourage them to act.</li>
+          <li>Less is more — brevity increases memorability and impact.</li>
+        </ol>`
+      },
+      {
+        title: "The New Art of Persuasion",
+        detail: `<ol>
+          <li>Mimic strategically: Subtly mirror movements to build rapport.</li>
+          <li>Use positive framing and touch lightly (e.g., positive labels encourage positive behavior).</li>
+          <li>Offer fewer choices — too many options paralyze decision-making.</li>
+          <li>Explain why: Even meaningless reasons increase compliance if stated clearly.</li>
+          <li>Selling is about serving — when you help others, influence follows naturally.</li>
+        </ol>`
+      }
+    ]
+  },
+  {
+    title: "How to Win Friends and Influence People",
+    author: "Dale Carnegie",
+    icon: "👥",
+    about: "Timeless principles for building strong relationships, influencing others positively, and becoming more likable.",
+    mainPoints: [
+      {
+        title: "Fundamental Techniques in Handling People",
+        detail: `<ol>
+          <li>Don't criticize, condemn, or complain — it makes people defensive.</li>
+          <li>Give honest and sincere appreciation — people crave feeling important.</li>
+          <li>Arouse in the other person an eager want — talk in terms of their interests.</li>
+          <li>Avoid arguments — they rarely change minds and damage relationships.</li>
+          <li>Focus on what you can agree on first to build rapport.</li>
+        </ol>`
+      },
+      {
+        title: "Six Ways to Make People Like You",
+        detail: `<ol>
+          <li>Become genuinely interested in other people.</li>
+          <li>Smile — it creates instant warmth and positivity.</li>
+          <li>Remember and use a person's name — it's the sweetest sound to them.</li>
+          <li>Be a good listener — encourage others to talk about themselves.</li>
+          <li>Talk in terms of the other person's interests.</li>
+          <li>Make the other person feel important — and do it sincerely.</li>
+        </ol>`
+      },
+      {
+        title: "How to Win People to Your Way of Thinking",
+        detail: `<ol>
+          <li>Avoid arguments — show respect for others' opinions.</li>
+          <li>Never say “You're wrong” directly — admit when you're wrong yourself first.</li>
+          <li>Begin in a friendly way, even in disagreement.</li>
+          <li>Let the other person do most of the talking.</li>
+          <li>Let the other person feel the idea is theirs.</li>
+        </ol>`
+      },
+      {
+        title: "Be a Leader: How to Change People Without Offense",
+        detail: `<ol>
+          <li>Begin with praise and honest appreciation before suggesting change.</li>
+          <li>Call attention to mistakes indirectly (use questions, not accusations).</li>
+          <li>Talk about your own mistakes before criticizing others.</li>
+          <li>Ask questions instead of giving direct orders.</li>
+          <li>Give people a reputation to live up to and they will try to meet it.</li>
+        </ol>`
+      },
+      {
+        title: "Core Mindset for Influence",
+        detail: `<ol>
+          <li>See things from the other person's point of view (empathy is key).</li>
+          <li>Be sympathetic with others' ideas and desires.</li>
+          <li>Appeal to nobler motives — people want to feel generous and important.</li>
+          <li>Dramatize your ideas to make them memorable.</li>
+          <li>Throw down a challenge — people love to prove their worth.</li>
+        </ol>`
+      }
+    ]
+  },
+  {
+    title: "Influence: The Psychology of Persuasion",
+    author: "Robert B. Cialdini",
+    icon: "🧲",
+    about: "The classic exploration of the six universal principles of influence and how they drive human behavior and decision-making.",
+    mainPoints: [
+      {
+        title: "Reciprocity",
+        detail: `<ol>
+          <li>People feel obligated to give back to others who have given to them first.</li>
+          <li>A small gift or favor can create a powerful sense of indebtedness.</li>
+          <li>Free samples, complimentary services, and unsolicited help trigger reciprocity.</li>
+          <li>The rule works even when the return gift is much larger than the original.</li>
+          <li>Concession (reject-then-retreat) technique exploits reciprocity powerfully.</li>
+        </ol>`
+      },
+      {
+        title: "Commitment and Consistency",
+        detail: `<ol>
+          <li>People want to be consistent with what they have previously said or done.</li>
+          <li>A small initial commitment can lead to much larger future commitments.</li>
+          <li>Written commitments are more powerful than verbal ones.</li>
+          <li>Public commitments are even stronger because we want to protect our self-image.</li>
+          <li>Once we take a stand, we strive to behave consistently with it.</li>
+        </ol>`
+      },
+      {
+        title: "Social Proof",
+        detail: `<ol>
+          <li>We look to others to determine what is correct, especially in uncertainty.</li>
+          <li>The more people doing something, the more likely we are to follow.</li>
+          <li>Testimonials, crowds, and “bestseller” labels leverage social proof.</li>
+          <li>It works strongest when the others are similar to us.</li>
+          <li>Plurality illusion (canned laughter, fake reviews) can manufacture social proof.</li>
+        </ol>`
+      },
+      {
+        title: "Liking",
+        detail: `<ol>
+          <li>We prefer to say yes to people we know and like.</li>
+          <li>Physical attractiveness, similarity, and compliments increase liking.</li>
+          <li>Association (e.g., celebrities, good news bearers) transfers liking.</li>
+          <li>Familiarity through repeated contact breeds liking.</li>
+          <li>Cooperation and shared goals create strong bonds of liking.</li>
+        </ol>`
+      },
+      {
+        title: "Authority",
+        detail: `<ol>
+          <li>People obey authority figures, even when asked to do objectionable things.</li>
+          <li>Titles, uniforms, and symbols (expensive suits, luxury cars) signal authority.</li>
+          <li>We often follow authority automatically without thinking.</li>
+          <li>Expertise + trustworthiness = maximum influence.</li>
+          <li>Even apparent symbols of authority (e.g., a stethoscope) trigger compliance.</li>
+        </ol>`
+      },
+      {
+        title: "Scarcity",
+        detail: `<ol>
+          <li>Opportunities seem more valuable when availability is limited.</li>
+          <li>“Limited time offer,” “only 3 left,” and exclusivity drive urgency.</li>
+          <li>Loss framing is more motivating than gain framing.</li>
+          <li>New scarcity (recently lost) is more powerful than constant scarcity.</li>
+          <li>Censorship and restricted information increase desire for it.</li>
+        </ol>`
+      }
+    ]
+  },
+  {
+    title: "React Mastery",
+    author: "Essential Learnings for Modern Developers",
+    icon: "⚛️",
+    about: "The most practical and important concepts every React developer must internalize — focused on real-world thinking, not just syntax.",
+    mainPoints: [
+      {
+        title: "Component-Based Architecture",
+        detail: `<ol>
+          <li>Everything in React is built from reusable, independent components.</li>
+          <li>Break UI into small, composable parts instead of large pages.</li>
+          <li>Components promote reusability and cleaner code organization.</li>
+          <li>Think in terms of UI building blocks, not monolithic screens.</li>
+          <li>Good components are focused, testable, and easy to maintain.</li>
+        </ol>`
+      },
+      {
+        title: "JSX and Declarative Rendering",
+        detail: `<ol>
+          <li>JSX is JavaScript syntax that lets you write UI like HTML.</li>
+          <li>Use curly braces { } to embed logic directly in markup.</li>
+          <li>React is declarative: describe what the UI should look like.</li>
+          <li>Never manipulate the DOM directly — let React handle updates.</li>
+          <li>Conditional rendering and loops are natural in JSX.</li>
+        </ol>`
+      },
+      {
+        title: "State Drives the UI",
+        detail: `<ol>
+          <li>useState manages dynamic data that changes over time.</li>
+          <li>When state updates, React automatically re-renders the UI.</li>
+          <li>State is local to a component unless lifted up.</li>
+          <li>Always update state via setter functions, never mutate directly.</li>
+          <li>Think of state as the single source of truth for UI.</li>
+        </ol>`
+      },
+      {
+        title: "Props and One-Way Data Flow",
+        detail: `<ol>
+          <li>Props pass data and functions from parent to child components.</li>
+          <li>Data flows strictly downward — children cannot modify props.</li>
+          <li>This unidirectional flow makes apps predictable and debuggable.</li>
+          <li>Use props for configuration and callbacks for communication up.</li>
+          <li>Props are immutable from the child's perspective.</li>
+        </ol>`
+      },
+      {
+        title: "Managing Side Effects with useEffect",
+        detail: `<ol>
+          <li>useEffect handles API calls, subscriptions, timers, and cleanup.</li>
+          <li>Separate side effects from rendering logic.</li>
+          <li>Dependency array controls when effect runs.</li>
+          <li>Always clean up (unsubscribe, clear timers) to prevent leaks.</li>
+          <li>Empty array [] means run once on mount.</li>
+        </ol>`
+      },
+      {
+        title: "Keys, Lists, and Controlled Components",
+        detail: `<ol>
+          <li>Keys help React efficiently update dynamic lists.</li>
+          <li>Always use stable, unique IDs as keys — never array index.</li>
+          <li>Form inputs should be controlled by state (value + onChange).</li>
+          <li>Controlled forms give full control and prevent bugs.</li>
+          <li>Lift state up when multiple components need shared data.</li>
+        </ol>`
+      },
+      {
+        title: "Thinking in UI States",
+        detail: `<ol>
+          <li>Design UIs around states: loading, empty, error, success.</li>
+          <li>Show appropriate feedback for every possible state.</li>
+          <li>State-driven UI makes apps more robust and user-friendly.</li>
+          <li>Avoid assuming data is always available.</li>
+          <li>Real apps are defined by how they handle edge cases.</li>
+        </ol>`
+      },
+      {
+        title: "Best Practices and Mindset",
+        detail: `<ol>
+          <li>Follow Hooks rules strictly — call at top level only.</li>
+          <li>Prioritize clean, readable code over premature optimization.</li>
+          <li>React is a UI library — use ecosystem tools for routing, state, etc.</li>
+          <li>Organize code with logical folder structure.</li>
+          <li>True mastery comes from building real projects, not just tutorials.</li>
+        </ol>`
+      }
+    ]
+  }
+      // Add more books here...
+    ];
+
+    function renderBooks() {
+      const bookList = document.getElementById('bookList');
+      bookList.innerHTML = '';
+
+      books.forEach((book, bookIndex) => {
+        // Create book card
+        const bookCard = document.createElement('div');
+        bookCard.className = 'book-card';
+
+        bookCard.innerHTML = `
+          <div class="book-header">
+            <div class="book-icon">${book.icon}</div>
+            <div class="book-info">
+              <h2>${book.title}</h2>
+              <p>by ${book.author} • ${book.about}</p>
+            </div>
+            <div class="arrow">▼</div>
+          </div>
+          <div class="main-points" id="points-${bookIndex}"></div>
+        `;
+
+        // Book header toggle
+        const bookHeader = bookCard.querySelector('.book-header');
+        const bookArrow = bookHeader.querySelector('.arrow');
+        const mainPoints = bookCard.querySelector('.main-points');
+
+        bookHeader.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent any parent interference
+          mainPoints.classList.toggle('open');
+          bookArrow.classList.toggle('rotated');
+        });
+
+        // Render main points
+        const pointsContainer = bookCard.querySelector(`#points-${bookIndex}`);
+
+        book.mainPoints.forEach((point, pointIndex) => {
+          const pointItem = document.createElement('div');
+          pointItem.className = 'point-item';
+
+          pointItem.innerHTML = `
+            <div class="point-header">
+              <div class="point-arrow">▼</div>
+              <div>${point.title}</div>
+            </div>
+            <div class="point-detail">
+              ${point.detail}
+            </div>
+          `;
+
+          // Point header toggle
+          const pointHeader = pointItem.querySelector('.point-header');
+          const pointArrow = pointHeader.querySelector('.point-arrow');
+          const pointDetail = pointItem.querySelector('.point-detail');
+
+          pointHeader.addEventListener('click', (e) => {
+            e.stopPropagation(); // Crucial: stops click from bubbling to book header
+            pointDetail.classList.toggle('open');
+            pointArrow.classList.toggle('rotated');
+          });
+
+          pointsContainer.appendChild(pointItem);
+        });
+
+        bookList.appendChild(bookCard);
+      });
+    }
+
+    // Render on page load
+    renderBooks();
+  </script>
+</body>
+</html>
