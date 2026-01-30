@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveling Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f4f4f4;
+        }
+        #app {
+            max-width: 600px;
+            margin: auto;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: white;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .edit-btn {
+            background-color: #2196F3;
+            width: auto;
+            padding: 5px 10px;
+            margin-top: 5px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        #monthlyReport {
+            margin-top: 20px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #totalKm {
+            float: right;
+            font-size: 0.8em;
+            color: #666;
+        }
+        #exportPdfBtn, #shareBtn {
+            width: auto;
+            margin-right: 10px;
+            background-color: #008CBA;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Traveling Management System</h1>
+        <button id="addRecordBtn">Add New Visit Record</button>
+        <h2>Visit History <span id="totalKm"></span></h2>
+        <ul id="historyList"></ul>
+        <h2>Monthly Report</h2>
+        <select id="monthSelect"></select>
+        <div id="monthlyReport"></div>
+    </div>
+
+    <!-- Record Modal -->
+    <div id="recordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="recordClose">&times;</span>
+            <h2 id="modalTitle">Add Visit Record</h2>
+            <form id="recordForm">
+                <input type="date" id="visitDate" required>
+                <input type="text" id="visitAddress" placeholder="Visit Address" required>
+                <select id="purpose" required>
+                    <option value="">Select Purpose of Visit</option>
+                    <optgroup label="A/C open">
+                        <option value="SB">SB</option>
+                        <option value="CA">CA</option>
+                        <option value="FD">FD</option>
+                        <option value="RD">RD</option>
+                        <option value="Arambh">Arambh</option>
+                    </optgroup>
+                    <optgroup label="FVR">
+                        <option value="PL">PL</option>
+                        <option value="SEL">SEL</option>
+                        <option value="OATD">OATD</option>
+                        <option value="HL">HL</option>
+                        <option value="LAP">LAP</option>
+                        <option value="EDD">EDD</option>
+                    </optgroup>
+                    <optgroup label="third-party">
+                        <option value="LI">LI</option>
+                        <option value="HI">HI</option>
+                        <option value="GI">GI</option>
+                        <option value="MF">MF</option>
+                        <option value="SIP">SIP</option>
+                    </optgroup>
+                </select>
+                <input type="number" id="kilometres" placeholder="Journey Kilometres" required min="0">
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reminder Popup -->
+    <div id="reminderPopup" class="modal">
+        <div class="modal-content">
+            <span class="close" id="reminderClose">&times;</span>
+            <h2>Reminder</h2>
+            <p>Prepare TA Bill for the previous month.</p>
+        </div>
+    </div>
+
+    <script>
+        let records = JSON.parse(localStorage.getItem('travelRecords')) || [];
+        let currentEditIndex = -1;
+
+        const recordModal = document.getElementById('recordModal');
+        const reminderPopup = document.getElementById('reminderPopup');
+        const recordClose = document.getElementById('recordClose');
+        const reminderClose = document.getElementById('reminderClose');
+        const addRecordBtn = document.getElementById('addRecordBtn');
+        const recordForm = document.getElementById('recordForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const monthSelect = document.getElementById('monthSelect');
+        const totalKmSpan = document.getElementById('totalKm');
+
+        // Open record modal for add
+        addRecordBtn.onclick = function() {
+            currentEditIndex = -1;
+            modalTitle.textContent = 'Add Visit Record';
+            clearForm();
+            recordModal.style.display = 'block';
+        }
+
+        // Close modals
+        recordClose.onclick = function() { recordModal.style.display = 'none'; }
+        reminderClose.onclick = function() { reminderPopup.style.display = 'none'; }
+
+        // Save record
+        recordForm.onsubmit = function(e) {
+            e.preventDefault();
+            const record = {
+                visitDate: document.getElementById('visitDate').value,
+                visitAddress: document.getElementById('visitAddress').value,
+                purpose: document.getElementById('purpose').value,
+                kilometres: document.getElementById('kilometres').value
+            };
+
+            if (currentEditIndex === -1) {
+                records.push(record);
+            } else {
+                records[currentEditIndex] = record;
+            }
+
+            localStorage.setItem('travelRecords', JSON.stringify(records));
+            recordModal.style.display = 'none';
+            renderHistory();
+            populateMonths();
+            showMonthlyReport(monthSelect.value);
+        }
+
+        // Edit record
+        function editRecord(index) {
+            currentEditIndex = index;
+            modalTitle.textContent = 'Edit Visit Record';
+            const record = records[index];
+            document.getElementById('visitDate').value = record.visitDate;
+            document.getElementById('visitAddress').value = record.visitAddress;
+            document.getElementById('purpose').value = record.purpose;
+            document.getElementById('kilometres').value = record.kilometres;
+            recordModal.style.display = 'block';
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('visitDate').value = '';
+            document.getElementById('visitAddress').value = '';
+            document.getElementById('purpose').value = '';
+            document.getElementById('kilometres').value = '';
+        }
+
+        // Render history
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            records.sort((a, b) => new Date(b.visitDate) - new Date(a.visitDate)); // Sort by date desc
+            let totalKm = 0;
+            records.forEach((record, index) => {
+                totalKm += Number(record.kilometres);
+                const li = document.createElement('li');
+                const text = `
+                    ${record.visitDate} - ${record.visitAddress}<br>
+                    Purpose: ${record.purpose} | Km: ${record.kilometres}
+                `;
+                li.innerHTML = text;
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Edit';
+                editBtn.className = 'edit-btn';
+                editBtn.onclick = () => editRecord(index);
+                li.appendChild(editBtn);
+                historyList.appendChild(li);
+            });
+            totalKmSpan.textContent = `Total Kilometres: ${totalKm}`;
+        }
+
+        // Populate month select
+        function populateMonths() {
+            const months = new Set();
+            records.forEach(record => {
+                const date = new Date(record.visitDate);
+                const monthKey = `\( {date.getFullYear()}- \){String(date.getMonth() + 1).padStart(2, '0')}`;
+                months.add(monthKey);
+            });
+            monthSelect.innerHTML = '';
+            Array.from(months).sort().reverse().forEach(month => {
+                const option = document.createElement('option');
+                option.value = month;
+                option.textContent = month;
+                monthSelect.appendChild(option);
+            });
+        }
+
+        // Show monthly report
+        function showMonthlyReport(month) {
+            const monthlyReport = document.getElementById('monthlyReport');
+            monthlyReport.innerHTML = '';
+            if (!month) return;
+            const [year, mon] = month.split('-').map(Number);
+            const filtered = records.filter(record => {
+                const date = new Date(record.visitDate);
+                return date.getFullYear() === year && (date.getMonth() + 1) === mon;
+            });
+            let totalKm = 0;
+            const ul = document.createElement('ul');
+            filtered.forEach(record => {
+                totalKm += Number(record.kilometres);
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    ${record.visitDate} - ${record.visitAddress}<br>
+                    Purpose: ${record.purpose} | Km: ${record.kilometres}
+                `;
+                ul.appendChild(li);
+            });
+            monthlyReport.appendChild(ul);
+            const summary = document.createElement('p');
+            summary.textContent = `Total Kilometres: ${totalKm}`;
+            monthlyReport.appendChild(summary);
+
+            // Add export PDF button
+            const exportBtn = document.createElement('button');
+            exportBtn.id = 'exportPdfBtn';
+            exportBtn.textContent = 'Export PDF';
+            exportBtn.onclick = () => exportToPdf(month, filtered, totalKm);
+            monthlyReport.appendChild(exportBtn);
+
+            // Add share button if supported
+            if (navigator.share) {
+                const shareBtn = document.createElement('button');
+                shareBtn.id = 'shareBtn';
+                shareBtn.textContent = 'Share PDF';
+                shareBtn.onclick = () => sharePdf(month, filtered, totalKm);
+                monthlyReport.appendChild(shareBtn);
+            }
+        }
+
+        // Export to PDF
+        function exportToPdf(month, filtered, totalKm) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text(`Monthly Report for ${month}`, 10, 10);
+            let y = 20;
+            filtered.forEach(record => {
+                doc.text(`${record.visitDate} - ${record.visitAddress}`, 10, y);
+                y += 10;
+                doc.text(`Purpose: ${record.purpose} | Km: ${record.kilometres}`, 10, y);
+                y += 10;
+            });
+            doc.text(`Total Kilometres: ${totalKm}`, 10, y);
+            doc.save(`monthly_report_${month}.pdf`);
+        }
+
+        // Share PDF
+        async function sharePdf(month, filtered, totalKm) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text(`Monthly Report for ${month}`, 10, 10);
+            let y = 20;
+            filtered.forEach(record => {
+                doc.text(`${record.visitDate} - ${record.visitAddress}`, 10, y);
+                y += 10;
+                doc.text(`Purpose: ${record.purpose} | Km: ${record.kilometres}`, 10, y);
+                y += 10;
+            });
+            doc.text(`Total Kilometres: ${totalKm}`, 10, y);
+            const pdfBlob = doc.output('blob');
+            const file = new File([pdfBlob], `monthly_report_${month}.pdf`, { type: 'application/pdf' });
+            try {
+                await navigator.share({
+                    title: 'Monthly Travel Report',
+                    text: 'Sharing my monthly travel report',
+                    files: [file]
+                });
+            } catch (err) {
+                console.error('Share failed:', err);
+            }
+        }
+
+        // Check for TA Bill reminder
+        function checkReminder() {
+            const today = new Date();
+            const day = today.getDate();
+            const lastDayOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            if (day <= 7 || day === lastDayOfCurrentMonth) {
+                reminderPopup.style.display = 'block';
+            }
+        }
+
+        // Month select change
+        monthSelect.onchange = function() {
+            showMonthlyReport(this.value);
+        }
+
+        // Initial render
+        renderHistory();
+        populateMonths();
+        if (monthSelect.options.length > 0) {
+            showMonthlyReport(monthSelect.value);
+        }
+        checkReminder();
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            if (event.target === recordModal) recordModal.style.display = 'none';
+            if (event.target === reminderPopup) reminderPopup.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
