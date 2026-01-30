@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goal & Achievement Manager</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--primary:#2563eb;--bg:#f1f5f9;--card:#fff}
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:var(--bg)}
+header{background:var(--primary);color:#fff;padding:15px;text-align:center}
+nav{display:flex;position:fixed;bottom:0;width:100%;background:#fff;border-top:1px solid #ddd}
+nav button{flex:1;padding:10px;border:none;background:none}
+nav button.active{color:var(--primary);font-weight:bold}
+.section{display:none;padding:15px 15px 70px}
+.section.active{display:block}
+.card{background:#fff;padding:15px;margin-bottom:15px;border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+input,select,textarea,button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px solid #ccc}
+button.primary{background:var(--primary);color:#fff;border:none}
+.progress{background:#e5e7eb;border-radius:8px;height:10px;overflow:hidden;margin-top:8px}
+.progress div{background:var(--primary);height:100%}
+.badge{background:#22c55e;color:#fff;padding:5px 10px;border-radius:20px;font-size:12px;display:inline-block;margin-top:5px}
+.small{font-size:12px;color:#555}
+</style>
+</head>
+<body>
+
+<header>
+<h2>My Goals & Achievements</h2>
+<div class="small">Offline • Family • Focused</div>
+</header>
+
+<div id="dashboard" class="section active">
+<div class="card">
+<b>Total Goals:</b> <span id="totalGoals">0</span><br>
+<b>Completed:</b> <span id="completedGoals">0</span>
+</div>
+<div id="goalList"></div>
+</div>
+
+<div id="goals" class="section">
+<div class="card">
+<h3>Add Goal</h3>
+<input id="familyMember" placeholder="Family member (Self, Son, Wife)">
+<input id="goalTitle" placeholder="Goal title">
+<select id="goalType">
+<option>Financial</option>
+<option>Skill</option>
+<option>Family</option>
+</select>
+<input id="goalTarget" type="number" placeholder="Target number">
+<textarea id="goalNote" placeholder="Notes"></textarea>
+<button class="primary" onclick="addGoal()">Save Goal</button>
+</div>
+</div>
+
+<div id="achievements" class="section">
+<div class="card">
+<h3>Achievements</h3>
+<div id="achievementList"></div>
+</div>
+</div>
+
+<div id="reminders" class="section">
+<div class="card">
+<h3>Daily Reminder</h3>
+<input type="time" id="reminderTime">
+<button class="primary" onclick="setReminder()">Enable Reminder</button>
+<p class="small">Works when app is installed</p>
+</div>
+</div>
+
+<nav>
+<button class="active" onclick="showSection('dashboard',this)">Dashboard</button>
+<button onclick="showSection('goals',this)">Goals</button>
+<button onclick="showSection('achievements',this)">Achievements</button>
+<button onclick="showSection('reminders',this)">Reminders</button>
+</nav>
+
+<script>
+let goals = JSON.parse(localStorage.getItem('goals')) || [];
+
+function showSection(id,btn){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+}
+
+function addGoal(){
+let g={
+title:goalTitle.value,
+type:goalType.value,
+target:+goalTarget.value,
+progress:0,
+family:familyMember.value||'Self',
+note:goalNote.value
+};
+if(!g.title||!g.target)return alert('Fill all');
+goals.push(g);
+save();render();
+goalTitle.value=goalTarget.value=goalNote.value=familyMember.value='';
+}
+
+function updateProgress(i){
+goals[i].progress++;
+if(goals[i].progress>goals[i].target)goals[i].progress=goals[i].target;
+save();render();
+}
+
+function save(){localStorage.setItem('goals',JSON.stringify(goals));}
+
+function render(){
+goalList.innerHTML='';achievementList.innerHTML='';
+let done=0;
+goals.forEach((g,i)=>{
+let p=Math.round(g.progress/g.target*100);
+if(p==100)done++;
+goalList.innerHTML+=`
+<div class="card">
+<b>${g.title}</b> <span class="small">(${g.family})</span>
+<div class="progress"><div style="width:${p}%"></div></div>
+<div class="small">${g.progress}/${g.target}</div>
+<button onclick="updateProgress(${i})">Daily Check</button>
+${p==100?'<div class="badge">Completed</div>':''}
+</div>`;
+if(p==100)achievementList.innerHTML+=`<div class="badge">${g.title}</div>`;
+});
+totalGoals.textContent=goals.length;
+completedGoals.textContent=done;
+}
+render();
+
+function setReminder(){
+let t=reminderTime.value;
+if(!t)return alert('Select time');
+localStorage.setItem('reminderTime',t);
+Notification.requestPermission();
+alert('Reminder saved');
+}
+
+if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js');}
+</script>
+</body>
+</html>
