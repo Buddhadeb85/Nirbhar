@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatic Budget Planner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+        }
+        .tabs {
+            display: flex;
+            flex-wrap: nowrap; /* Ensures horizontal layout */
+            background: #f1f1f1;
+            border-bottom: 1px solid #ddd;
+            overflow-x: auto; /* Allows horizontal scrolling on very small screens */
+            -webkit-overflow-scrolling: touch;
+        }
+        .tab-button {
+            flex: 1 1 auto; /* Allows equal distribution but flexible */
+            min-width: 100px; /* Prevents tabs from becoming too narrow */
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #f1f1f1;
+            border: solid;
+            font-size: 15px;
+            white-space: nowrap; /* Keeps text in one line */
+        }
+        .tab-button:hover {
+            background: #ddd;
+        }
+        .tab-button.active {
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        form {
+            display: grid;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px;
+            background: #4CAF50;
+            color: blue;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .tips-section, .future-ideas {
+            margin-top: 30px;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .tips-section {
+            background: #e7f3ff;
+            border-left: 5px solid #2196F3;
+        }
+        .future-ideas {
+            background: #fff3e0;
+            border-left: 5px solid #FF9800;
+        }
+        @media (max-width: 768px) {
+            .tab-button {
+                font-size: 14px;
+                padding: 12px 8px;
+                min-width: 100px;
+            }
+        }
+        @media (max-width: 600px) {
+            .tab-button {
+                font-size: 13px;
+                padding: 10px 6px;
+                min-width: 90px;
+            }
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr { margin: 10px 0; border: 1px solid #ccc; }
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            td:before {
+                position: absolute;
+                top: 12px;
+                left: 12px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: bold;
+                text-align: left;
+                content: attr(data-label);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h2>Automatic Budget Planner</h2>
+            <p style="margin: 5px 0 0;">Smart budgeting tool for Indian families</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'Input')">Input Details</button>
+            <button class="tab-button" onclick="openTab(event, 'Monthly')">Monthly Budget</button>
+            <button class="tab-button" onclick="openTab(event, 'Yearly')">Yearly Summary</button>
+            <button class="tab-button" onclick="openTab(event, 'Tips')">Tips & Investments</button>
+            <button class="tab-button" onclick="openTab(event, 'Future')">Future Ideas</button>
+        </div>
+
+        <div id="Input" class="tab-content active">
+            <p>Enter your details below. The app will automatically calculate and plan your budget based on conservative allocations suitable for low-to-middle income Indian families.</p>
+            
+            <form id="budgetForm">
+                <label for="annualSalary">Annual Salary (in ₹):</label>
+                <input type="number" id="annualSalary" value="500000" required min="100000">
+                
+                <label for="numDependents">Number of Dependents:</label>
+                <input type="number" id="numDependents" value="5" required min="0">
+                
+                <label for="dependentDetails">Dependent Details (e.g., 2 seniors, 2 children, 1 spouse):</label>
+                <input type="text" id="dependentDetails" value="2 senior citizens, 2 schooling children, 1 housewife" required>
+                
+                <label for="location">Location (e.g., Tier-2 city, Mumbai, Rural):</label>
+                <input type="text" id="location" value="Tier-2 city" required>
+                
+                <button type="submit">Calculate Budget</button>
+            </form>
+        </div>
+
+        <div id="Monthly" class="tab-content">
+            <div id="monthlyOutput"></div>
+        </div>
+
+        <div id="Yearly" class="tab-content">
+            <div id="yearlyOutput"></div>
+        </div>
+
+        <div id="Tips" class="tab-content">
+            <div class="tips-section" id="tipsSection"></div>
+        </div>
+
+        <div id="Future" class="tab-content">
+            <div class="future-ideas" id="futureSection"></div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            const tabButtons = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        document.getElementById('budgetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const annualSalary = parseFloat(document.getElementById('annualSalary').value);
+            const monthlySalary = Math.round(annualSalary / 12);
+            const numDependents = parseInt(document.getElementById('numDependents').value);
+            const dependentDetails = document.getElementById('dependentDetails').value;
+            const location = document.getElementById('location').value.trim();
+            
+            // Dynamic adjustments
+            let foodPct = 30;
+            let housingPct = location.toLowerCase().includes('mumbai') || location.toLowerCase().includes('metro') ? 35 : 25;
+            let healthPct = 10 + (dependentDetails.toLowerCase().includes('senior') ? 5 : 0);
+            let educationPct = 10 + (dependentDetails.toLowerCase().includes('child') || dependentDetails.toLowerCase().includes('school') ? 5 : 0);
+            let utilitiesPct = 8;
+            let transportPct = 6;
+            let clothingPct = 5;
+            let savingsPct = 6;
+            let miscPct = 5;
+            
+            // Normalize if over 100%
+            let totalPct = foodPct + housingPct + healthPct + educationPct + utilitiesPct + transportPct + clothingPct + savingsPct + miscPct;
+            if (totalPct > 100) {
+                const scale = 100 / totalPct;
+                foodPct = Math.round(foodPct * scale * 10) / 10;
+                housingPct = Math.round(housingPct * scale * 10) / 10;
+                healthPct = Math.round(healthPct * scale * 10) / 10;
+                educationPct = Math.round(educationPct * scale * 10) / 10;
+                utilitiesPct = Math.round(utilitiesPct * scale * 10) / 10;
+                transportPct = Math.round(transportPct * scale * 10) / 10;
+                clothingPct = Math.round(clothingPct * scale * 10) / 10;
+                savingsPct = Math.round(savingsPct * scale * 10) / 10;
+                miscPct = Math.round(miscPct * scale * 10) / 10;
+            }
+
+            const allocations = [
+                {name: "Food & Groceries", pct: foodPct, guide: "Home-cooked meals, use ration card, buy in bulk from local markets."},
+                {name: "Housing (Rent/EMI)", pct: housingPct, guide: "Prioritize affordable areas; explore PMAY if eligible."},
+                {name: "Healthcare", pct: healthPct, guide: "Generic medicines, Ayushman Bharat, regular check-ups for seniors."},
+                {name: "Education", pct: educationPct, guide: "Government schools, scholarships, free mid-day meals."},
+                {name: "Utilities", pct: utilitiesPct, guide: "LED bulbs, limit AC/fan use, bundled plans."},
+                {name: "Transportation", pct: transportPct, guide: "Public transport, shared autos, fuel-efficient vehicle."},
+                {name: "Clothing & Personal Care", pct: clothingPct, guide: "Buy during sales, reuse/hand-me-downs."},
+                {name: "Savings & Investments", pct: savingsPct, guide: "Emergency fund first, then RD/SIP/PPF."},
+                {name: "Miscellaneous", pct: miscPct, guide: "Festivals, repairs, small emergencies."}
+            ];
+
+            // Calculate monthly amounts
+            allocations.forEach(item => {
+                item.amount = Math.round((item.pct / 100) * monthlySalary);
+            });
+
+            // Monthly Budget Table
+            let monthlyHTML = `<h2>Monthly Budget for ${location}</h2>`;
+            monthlyHTML += `<p><strong>Monthly Income:</strong> ₹${monthlySalary.toLocaleString()}</p>`;
+            monthlyHTML += `<p><strong>Family Size:</strong> ${numDependents + 1} (including you)</p>`;
+            monthlyHTML += `<p><strong>Dependents:</strong> ${dependentDetails}</p>`;
+            monthlyHTML += `<table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Percentage</th>
+                        <th>Amount (₹)</th>
+                        <th>Guidance</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            allocations.forEach(item => {
+                monthlyHTML += `<tr>
+                    <td data-label="Category">${item.name}</td>
+                    <td data-label="Percentage">${item.pct.toFixed(1)}%</td>
+                    <td data-label="Amount">₹${item.amount.toLocaleString()}</td>
+                    <td data-label="Guidance">${item.guide}</td>
+                </tr>`;
+            });
+            monthlyHTML += `</tbody></table>`;
+            document.getElementById('monthlyOutput').innerHTML = monthlyHTML;
+
+            // Yearly Summary
+            let yearlyHTML = `<h2>Yearly Budget Summary</h2>`;
+            yearlyHTML += `<p><strong>Total Annual Income:</strong> ₹${annualSalary.toLocaleString()}</p>`;
+            yearlyHTML += `<p><strong>Projected Annual Savings:</strong> ₹${(allocations.find(a => a.name.includes("Savings")).amount * 12).toLocaleString()}</p>`;
+            yearlyHTML += `<p><strong>Key Annual Expenses to Plan For:</strong></p><ul>`;
+            yearlyHTML += `<li>School Fees/Books: ₹20,000–40,000</li>`;
+            yearlyHTML += `<li>Health Insurance Premium: ₹15,000–25,000</li>`;
+            yearlyHTML += `<li>Festivals & Clothing: ₹15,000–25,000</li>`;
+            yearlyHTML += `<li>Home Maintenance: ₹10,000–20,000</li></ul>`;
+            yearlyHTML += `<p><strong>Advice:</strong> Review budget every 3 months. Adjust for inflation (6–8% expected). Aim to increase savings to 10% in 2 years.</p>`;
+            document.getElementById('yearlyOutput').innerHTML = yearlyHTML;
+
+            // Tips Section
+            document.getElementById('tipsSection').innerHTML = `
+                <h2>Investment & Extra Income Tips</h2>
+                <ul>
+                    <li><strong>Emergency Fund:</strong> Save 3–6 months of expenses in a high-interest savings account (up to 7%).</li>
+                    <li><strong>Low-Risk Investments:</strong> Start Recurring Deposit (RD) or SIP in index funds (₹500–1,000/month) via Groww/Paytm Money.</li>
+                    <li><strong>Government Schemes:</strong> PPF (7.1%), SCSS for seniors (8.2%), Sukanya Samriddhi if you have a girl child.</li>
+                    <li><strong>Extra Income Ideas:</strong> Tutoring, freelance work (data entry, content writing), small home business (tiffin service, tailoring), YouTube channel on budgeting tips.</li>
+                    <li><strong>Tax Saving:</strong> Invest in ELSS funds under 80C (up to ₹1.5 lakh deduction).</li>
+                </ul>`;
+
+            // Future Ideas
+            document.getElementById('futureSection').innerHTML = `
+                <h2>Future Development Ideas</h2>
+                <ul>
+                    <li>Expense tracking with daily logging and charts.</li>
+                    <li>Auto-adjust budget based on inflation data (API integration).</li>
+                    <li>Goal setting: Children's education, retirement calculator.</li>
+                    <li>PDF report generation with pie charts.</li>
+                    <li>Mobile app (Android/iOS) with notifications for bills.</li>
+                    <li>Integration with UPI/banks for real transaction import.</li>
+                    <li>AI suggestions based on spending patterns.</li>
+                </ul>`;
+
+            // Auto-switch to Monthly tab after calculation
+            localStorage.setItem('latestBudgetAllocations', JSON.stringify({
+                monthlyIncome: monthlySalary,
+                allocations: allocations
+            }));
+            openTab({currentTarget: document.querySelector('.tab-button:nth-child(2)')}, 'Monthly');
+        });
+    </script>
+</body>
+</html>
