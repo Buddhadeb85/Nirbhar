@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIP & Lumpsum Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 320px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .toggle button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #e0f7fa;
+            color: #00796b;
+            cursor: pointer;
+            flex: 1;
+        }
+        .toggle button:first-child {
+            border-radius: 20px 0 0 20px;
+        }
+        .toggle button:last-child {
+            border-radius: 0 20px 20px 0;
+        }
+        .toggle .active {
+            background-color: #00796b;
+            color: white;
+        }
+        .input-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .input-box {
+            display: flex;
+            align-items: center;
+            background-color: #e8f5e9;
+            border-radius: 6px;
+            padding: 8px 12px;
+        }
+        .input-box input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: right;
+            font-size: 18px;
+            outline: none;
+        }
+        .input-box span {
+            color: #00796b;
+            font-size: 18px;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-top: 12px;
+            accent-color: #00796b;
+        }
+        .output {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .output-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        .output-group label {
+            color: #666;
+            margin: 0;
+        }
+        .output-group span {
+            font-weight: bold;
+            color: #333;
+        }
+        .chart-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 40px auto 20px;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .legend-invested { background-color: #e3f2fd; }
+        .legend-returns { background-color: #2979ff; }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SIP Calculator</h1>
+        
+        <div class="toggle">
+            <button id="sip-btn" class="active">SIP</button>
+            <button id="lumpsum-btn">Lumpsum</button>
+        </div>
+
+        <!-- SIP Inputs -->
+        <div id="sip-inputs">
+            <div class="input-group">
+                <label>Monthly investment</label>
+                <div class="input-box">
+                    <span>₹</span>
+                    <input type="number" id="monthly" value="3000" min="500" max="500000" step="500">
+                </div>
+                <input type="range" id="monthly-slider" min="500" max="500000" step="500" value="3000">
+            </div>
+        </div>
+
+        <!-- Lumpsum Inputs -->
+        <div id="lumpsum-inputs" class="hidden">
+            <div class="input-group">
+                <label>Total investment</label>
+                <div class="input-box">
+                    <span>₹</span>
+                    <input type="number" id="lumpsum" value="50000" min="1000" max="10000000" step="1000">
+                </div>
+                <input type="range" id="lumpsum-slider" min="1000" max="10000000" step="1000" value="50000">
+            </div>
+        </div>
+
+        <!-- Common Inputs -->
+        <div class="input-group">
+            <label>Expected return rate (p.a)</label>
+            <div class="input-box">
+                <input type="number" id="rate" value="12" min="1" max="30" step="0.1">
+                <span>%</span>
+            </div>
+            <input type="range" id="rate-slider" min="1" max="30" step="0.1" value="12">
+        </div>
+
+        <div class="input-group">
+            <label>Time period</label>
+            <div class="input-box">
+                <input type="number" id="years" value="5" min="1" max="40" step="1">
+                <span>Yr</span>
+            </div>
+            <input type="range" id="years-slider" min="1" max="40" step="1" value="5">
+        </div>
+
+        <div class="output">
+            <div class="output-group">
+                <label>Invested amount</label>
+                <span id="invested">₹50,000</span>
+            </div>
+            <div class="output-group">
+                <label>Est. returns</label>
+                <span id="returns">₹38,117</span>
+            </div>
+            <div class="output-group">
+                <label>Total value</label>
+                <span id="total">₹88,117</span>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="doughnut-chart"></canvas>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color legend-invested"></div>
+                <span>Invested amount</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-returns"></div>
+                <span>Est. returns</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Elements
+        const sipBtn = document.getElementById('sip-btn');
+        const lumpsumBtn = document.getElementById('lumpsum-btn');
+        const sipInputs = document.getElementById('sip-inputs');
+        const lumpsumInputs = document.getElementById('lumpsum-inputs');
+
+        const monthly = document.getElementById('monthly');
+        const monthlySlider = document.getElementById('monthly-slider');
+        const lumpsum = document.getElementById('lumpsum');
+        const lumpsumSlider = document.getElementById('lumpsum-slider');
+
+        const rate = document.getElementById('rate');
+        const rateSlider = document.getElementById('rate-slider');
+        const years = document.getElementById('years');
+        const yearsSlider = document.getElementById('years-slider');
+
+        const investedSpan = document.getElementById('invested');
+        const returnsSpan = document.getElementById('returns');
+        const totalSpan = document.getElementById('total');
+
+        let isSIP = true;
+
+        // Chart setup
+        const ctx = document.getElementById('doughnut-chart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [50, 50],
+                    backgroundColor: ['#e3f2fd', '#2979ff'],
+                    borderWidth: 0,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                rotation: -90,
+                circumference: 180
+            }
+        });
+
+        // Toggle between SIP and Lumpsum
+        sipBtn.addEventListener('click', () => {
+            isSIP = true;
+            sipBtn.classList.add('active');
+            lumpsumBtn.classList.remove('active');
+            sipInputs.classList.remove('hidden');
+            lumpsumInputs.classList.add('hidden');
+            monthly.value = 3000;
+            monthlySlider.value = 3000;
+            years.value = 15;
+            yearsSlider.value = 15;
+            calculate();
+        });
+
+        lumpsumBtn.addEventListener('click', () => {
+            isSIP = false;
+            lumpsumBtn.classList.add('active');
+            sipBtn.classList.remove('active');
+            lumpsumInputs.classList.remove('hidden');
+            sipInputs.classList.add('hidden');
+            lumpsum.value = 50000;
+            lumpsumSlider.value = 50000;
+            years.value = 5;
+            yearsSlider.value = 5;
+            calculate();
+        });
+
+        // Sync sliders and inputs
+        function sync(input, slider) {
+            input.addEventListener('input', () => { slider.value = input.value; calculate(); });
+            slider.addEventListener('input', () => { input.value = slider.value; calculate(); });
+        }
+
+        sync(monthly, monthlySlider);
+        sync(lumpsum, lumpsumSlider);
+        sync(rate, rateSlider);
+        sync(years, yearsSlider);
+
+        function numberWithCommas(x) {
+            return x.toLocaleString('en-IN');
+        }
+
+        function calculate() {
+            const annualRate = parseFloat(rate.value) / 100 || 0;
+            const yrs = parseInt(years.value) || 0;
+
+            let invested = 0, fv = 0, returnsVal = 0;
+
+            if (isSIP) {
+                const P = parseFloat(monthly.value) || 0;
+                if (P > 0 && annualRate > 0 && yrs > 0) {
+                    const monthlyRate = Math.pow(1 + annualRate, 1/12) - 1;
+                    const months = yrs * 12;
+                    fv = P * (1 + monthlyRate) * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate;
+                    invested = P * months;
+                    returnsVal = fv - invested;
+                }
+            } else {
+                const principal = parseFloat(lumpsum.value) || 0;
+                if (principal > 0 && annualRate > 0 && yrs > 0) {
+                    fv = principal * Math.pow(1 + annualRate, yrs);
+                    invested = principal;
+                    returnsVal = fv - invested;
+                }
+            }
+
+            investedSpan.textContent = `₹${numberWithCommas(Math.round(invested))}`;
+            returnsSpan.textContent = `₹${numberWithCommas(Math.round(returnsVal))}`;
+            totalSpan.textContent = `₹${numberWithCommas(Math.round(fv))}`;
+
+            // Update doughnut chart (half-circle)
+            chart.data.datasets[0].data = [invested, returnsVal];
+            chart.update();
+        }
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
