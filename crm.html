@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Leads Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f4f4f4;
+        }
+        #app {
+            max-width: 600px;
+            margin: auto;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: white;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .edit-btn {
+            background-color: #2196F3;
+            width: auto;
+            padding: 5px 10px;
+            margin-top: 5px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>CRM Leads Management</h1>
+        <button id="addLeadBtn">Add New Lead</button>
+        <h2>Next 7 Days Reminders</h2>
+        <ul id="remindersList"></ul>
+        <h2>All Leads/Clients</h2>
+        <ul id="leadsList"></ul>
+    </div>
+
+    <!-- Lead Modal -->
+    <div id="leadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="leadClose">&times;</span>
+            <h2 id="modalTitle">Add Lead</h2>
+            <form id="leadForm">
+                <input type="text" id="cusName" placeholder="Customer Name" required>
+                <input type="text" id="contact" placeholder="Contact" required>
+                <input type="text" id="address" placeholder="Short Address" required>
+                <select id="productPitched" required>
+                    <option value="">Select Product Pitched</option>
+                    <optgroup label="Liability">
+                        <option value="SB">SB</option>
+                        <option value="CA">CA</option>
+                        <option value="FD">FD</option>
+                        <option value="RD">RD</option>
+                    </optgroup>
+                    <optgroup label="Assets">
+                        <option value="PL">PL</option>
+                        <option value="SEL">SEL</option>
+                        <option value="OATD">OATD</option>
+                        <option value="HL">HL</option>
+                        <option value="LAP">LAP</option>
+                        <option value="GL">GL</option>
+                        <option value="ACC">ACC</option>
+                        <option value="COCO">COCO</option>
+                        <option value="Auto">Auto</option>
+                    </optgroup>
+                    <optgroup label="Third-Party">
+                        <option value="LI">LI</option>
+                        <option value="HI">HI</option>
+                        <option value="GI">GI</option>
+                        <option value="MF">MF</option>
+                        <option value="SIP">SIP</option>
+                    </optgroup>
+                </select>
+                <select id="status" required>
+                    <option value="">Select Status</option>
+                    <option value="cold">cold</option>
+                    <option value="warm">warm</option>
+                    <option value="HOT">HOT</option>
+                    <option value="Client">Client</option>
+                </select>
+                <textarea id="notes" placeholder="Description Notes"></textarea>
+                <input type="date" id="followupDate" required>
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Client Popup -->
+    <div id="clientPopup" class="modal">
+        <div class="modal-content">
+            <span class="close" id="clientClose">&times;</span>
+            <h2>Client Details</h2>
+            <select id="clientProduct" required>
+                <option value="">Select Product</option>
+                <option value="SB">SB</option>
+                <option value="CA">CA</option>
+                <option value="FD">FD</option>
+                <option value="RD">RD</option>
+                <option value="PL">PL</option>
+                <option value="SEL">SEL</option>
+                <option value="OATD">OATD</option>
+                <option value="HL">HL</option>
+                <option value="LAP">LAP</option>
+                <option value="GL">GL</option>
+                <option value="ACC">ACC</option>
+                <option value="COCO">COCO</option>
+                <option value="AutoLoan">AutoLoan</option>
+                <option value="LI">LI</option>
+                <option value="HI">HI</option>
+                <option value="GI">GI</option>
+                <option value="MF">MF</option>
+                <option value="SIP">SIP</option>
+            </select>
+            <input type="text" id="accountNumber" placeholder="Account/Policy Number" required>
+            <button id="saveClientBtn">Save Client Info</button>
+        </div>
+    </div>
+
+    <script>
+        let leads = JSON.parse(localStorage.getItem('leads')) || [];
+        let currentEditIndex = -1;
+        let tempClientData = {};
+
+        const leadModal = document.getElementById('leadModal');
+        const clientPopup = document.getElementById('clientPopup');
+        const leadClose = document.getElementById('leadClose');
+        const clientClose = document.getElementById('clientClose');
+        const addLeadBtn = document.getElementById('addLeadBtn');
+        const leadForm = document.getElementById('leadForm');
+        const statusSelect = document.getElementById('status');
+        const modalTitle = document.getElementById('modalTitle');
+        const saveClientBtn = document.getElementById('saveClientBtn');
+
+        // Open lead modal for add
+        addLeadBtn.onclick = function() {
+            currentEditIndex = -1;
+            modalTitle.textContent = 'Add Lead';
+            clearForm();
+            leadModal.style.display = 'block';
+        }
+
+        // Close modals
+        leadClose.onclick = function() { leadModal.style.display = 'none'; }
+        clientClose.onclick = function() { clientPopup.style.display = 'none'; }
+
+        // Status change listener
+        statusSelect.onchange = function() {
+            if (this.value === 'Client' && (currentEditIndex === -1 || !leads[currentEditIndex].clientProduct)) {
+                leadModal.style.display = 'none';
+                clientPopup.style.display = 'block';
+            }
+        }
+
+        // Save client info
+        saveClientBtn.onclick = function() {
+            tempClientData.clientProduct = document.getElementById('clientProduct').value;
+            tempClientData.accountNumber = document.getElementById('accountNumber').value;
+            if (tempClientData.clientProduct && tempClientData.accountNumber) {
+                clientPopup.style.display = 'none';
+                leadModal.style.display = 'block';
+            }
+        }
+
+        // Save lead
+        leadForm.onsubmit = function(e) {
+            e.preventDefault();
+            const lead = {
+                cusName: document.getElementById('cusName').value,
+                contact: document.getElementById('contact').value,
+                address: document.getElementById('address').value,
+                productPitched: document.getElementById('productPitched').value,
+                status: statusSelect.value,
+                notes: document.getElementById('notes').value,
+                followupDate: document.getElementById('followupDate').value
+            };
+
+            if (lead.status === 'Client') {
+                if (!tempClientData.clientProduct || !tempClientData.accountNumber) {
+                    alert('Please provide client details.');
+                    return;
+                }
+                lead.clientProduct = tempClientData.clientProduct;
+                lead.accountNumber = tempClientData.accountNumber;
+            }
+
+            if (currentEditIndex === -1) {
+                leads.push(lead);
+            } else {
+                leads[currentEditIndex] = lead;
+            }
+
+            localStorage.setItem('leads', JSON.stringify(leads));
+            tempClientData = {};
+            leadModal.style.display = 'none';
+            renderLists();
+        }
+
+        // Edit lead
+        function editLead(index) {
+            currentEditIndex = index;
+            modalTitle.textContent = 'Edit Lead';
+            const lead = leads[index];
+            document.getElementById('cusName').value = lead.cusName;
+            document.getElementById('contact').value = lead.contact;
+            document.getElementById('address').value = lead.address;
+            document.getElementById('productPitched').value = lead.productPitched;
+            document.getElementById('status').value = lead.status;
+            document.getElementById('notes').value = lead.notes;
+            document.getElementById('followupDate').value = lead.followupDate;
+            if (lead.status === 'Client') {
+                tempClientData.clientProduct = lead.clientProduct;
+                tempClientData.accountNumber = lead.accountNumber;
+            }
+            leadModal.style.display = 'block';
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('cusName').value = '';
+            document.getElementById('contact').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('productPitched').value = '';
+            document.getElementById('status').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('followupDate').value = '';
+            document.getElementById('clientProduct').value = '';
+            document.getElementById('accountNumber').value = '';
+            tempClientData = {};
+        }
+
+        // Render lists
+        function renderLists() {
+            const remindersList = document.getElementById('remindersList');
+            const leadsList = document.getElementById('leadsList');
+            remindersList.innerHTML = '';
+            leadsList.innerHTML = '';
+
+            const today = new Date();
+            const sevenDaysLater = new Date(today);
+            sevenDaysLater.setDate(today.getDate() + 7);
+
+            leads.forEach((lead, index) => {
+                const li = document.createElement('li');
+                let text = `
+                    Name: ${lead.cusName}<br>
+                    Contact: ${lead.contact}<br>
+                    Address: ${lead.address}<br>
+                    Product Pitched: ${lead.productPitched}<br>
+                    Status: ${lead.status}<br>
+                    Notes: ${lead.notes}<br>
+                    Follow-up: ${lead.followupDate}
+                `;
+                if (lead.status === 'Client') {
+                    text += `<br>Client Product: ${lead.clientProduct}<br>Account/Policy: ${lead.accountNumber}`;
+                }
+                li.innerHTML = text;
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Edit';
+                editBtn.className = 'edit-btn';
+                editBtn.onclick = () => editLead(index);
+                li.appendChild(editBtn);
+                leadsList.appendChild(li);
+
+                // Check for reminder
+                const followup = new Date(lead.followupDate);
+                if (followup >= today && followup <= sevenDaysLater) {
+                    const remLi = li.cloneNode(true);
+                    remLi.lastChild.onclick = () => editLead(index); // Rebind edit
+                    remindersList.appendChild(remLi);
+                }
+            });
+        }
+
+        // Initial render
+        renderLists();
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            if (event.target === leadModal) leadModal.style.display = 'none';
+            if (event.target === clientPopup) clientPopup.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
