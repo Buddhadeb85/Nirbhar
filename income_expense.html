@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income & Expenses Management App</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        nav { margin-bottom: 20px; }
+        .section { display: none; }
+        .active { display: block; }
+        .tab-content { display: none; }
+        .tab-active { display: block; }
+        form { display: flex; flex-direction: column; max-width: 400px; }
+        label { margin-top: 10px; }
+        input, select, textarea { margin-bottom: 10px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        canvas { max-width: 400px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <nav>
+        <button onclick="showSection('add-transaction')">Add Transaction</button>
+        <button onclick="showSection('register')">Registers</button>
+        <button onclick="showSection('reports')">Reports</button>
+        <button onclick="window.location.href='b&c.html'">
+            Check Budget Status
+        </button>
+
+    </nav>
+
+    <div id="add-transaction" class="section">
+        <div class="tabs">
+            <button onclick="showTab('income')">Income</button>
+            <button onclick="showTab('expense')">Expense</button>
+        </div>
+        <div id="income" class="tab-content tab-active">
+            <form id="income-form">
+                <label>Received Amount (₹)</label>
+                <input type="number" name="amount" required>
+                <label>Source</label>
+                <select name="category" required>
+                    <option value="Salary">Salary</option>
+                    <option value="Bank Loan">Bank Loan</option>
+                    <option value="Other lenders">Other lenders</option>
+                </select>
+                <label>Date</label>
+                <input type="date" name="date" required>
+                <label>Received Method</label>
+                <select name="method" required>
+                    <option value="Cash">Cash</option>
+                    <option value="Bank">Bank</option>
+                </select>
+                <label>Notes</label>
+                <textarea name="notes"></textarea>
+                <button type="button" onclick="saveTransaction('income')">Save</button>
+            </form>
+        </div>
+        <div id="expense" class="tab-content">
+            <form id="expense-form">
+                <label>Payment Amount (₹)</label>
+                <input type="number" name="amount" required>
+                <label>Payment for</label>
+                <select name="category" required>
+                    <option value="Travelling">Travelling</option>
+                    <option value="Food">Food</option>
+                    <option value="Rent">Rent</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="EMI">EMI</option>
+                    <option value="Investment">Investment</option>
+                    <option value="Medical">Medical</option>
+                    <option value="School-fee">School-fee</option>
+                    <option value="Other">Other</option>
+                </select>
+                <label>Date</label>
+                <input type="date" name="date" required>
+                <label>Payment Method</label>
+                <select name="method" required>
+                    <option value="Cash">Cash</option>
+                    <option value="Bank">Bank</option>
+                </select>
+                <label>Notes</label>
+                <textarea name="notes"></textarea>
+                <button type="button" onclick="saveTransaction('expense')">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="register" class="section">
+        <table id="register-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Debit (Expense)</th>
+                    <th>Credit (Income)</th>
+                    <th>Balance</th>
+                    <th>Method</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="reports" class="section">
+        <label>Time Range</label>
+        <select id="time-range">
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+        </select>
+        <label>Report View</label>
+        <select id="report-view">
+            <option value="category">Category</option>
+            <option value="register">Register</option>
+            <option value="payment_mode">Payment Mode</option>
+        </select>
+        <button onclick="generateReport()">Generate Report</button>
+        <div id="report-tables">
+            <h3>Income Table</h3>
+            <table id="income-table"><thead><tr><th>Category</th><th>Total</th></tr></thead><tbody></tbody></table>
+            <h3>Expense Table</h3>
+            <table id="expense-table"><thead><tr><th>Category</th><th>Total</th></tr></thead><tbody></tbody></table>
+        </div>
+        <canvas id="pie-chart"></canvas>
+        <canvas id="bar-chart"></canvas>
+        <canvas id="line-chart"></canvas>
+        <button onclick="exportPDF()">Export PDF</button>
+        <button onclick="exportExcel()">Export Excel</button>
+        <button onclick="shareWhatsApp()">Share via WhatsApp</button>
+    </div>
+
+    <script>
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let pieChart, barChart, lineChart;
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+            if (id === 'register') loadRegister();
+            if (id === 'reports') generateReport(); // Auto-generate on show
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('tab-active'));
+            document.getElementById(tab).classList.add('tab-active');
+        }
+
+        function saveTransaction(type) {
+            const form = document.getElementById(`${type}-form`);
+            const data = {
+                type,
+                amount: parseFloat(form.amount.value),
+                category: form.category.value,
+                date: form.date.value,
+                method: form.method.value,
+                notes: form.notes.value || ''
+            };
+            transactions.push(data);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            form.reset();
+            alert('Transaction saved!');
+        }
+
+        function loadRegister() {
+            const tbody = document.querySelector('#register-table tbody');
+            tbody.innerHTML = '';
+            transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+            let balance = 0;
+            transactions.forEach(t => {
+                balance += t.type === 'income' ? t.amount : -t.amount;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${t.date}</td>
+                    <td>${t.category}</td>
+                    <td>${t.notes}</td>
+                    <td>${t.type === 'expense' ? t.amount : ''}</td>
+                    <td>${t.type === 'income' ? t.amount : ''}</td>
+                    <td>${balance.toFixed(2)}</td>
+                    <td>${t.method}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getFilteredTransactions(timeRange) {
+            const now = new Date();
+            let startDate;
+            if (timeRange === 'weekly') {
+                startDate = new Date(now.setDate(now.getDate() - 7));
+            } else { // monthly
+                startDate = new Date(now.setDate(now.getDate() - 30));
+            }
+            return transactions.filter(t => new Date(t.date) >= startDate);
+        }
+
+        function groupBy(trans, key, type) {
+            return trans.filter(t => t.type === type).reduce((acc, t) => {
+                const groupKey = t[key];
+                if (!acc[groupKey]) acc[groupKey] = 0;
+                acc[groupKey] += t.amount;
+                return acc;
+            }, {});
+        }
+
+        function generateReport() {
+            const timeRange = document.getElementById('time-range').value;
+            const view = document.getElementById('report-view').value;
+            const filtered = getFilteredTransactions(timeRange);
+
+            // Tables
+            const incomeGroups = groupBy(filtered, view === 'category' ? 'category' : (view === 'payment_mode' ? 'method' : 'category'), 'income');
+            const expenseGroups = groupBy(filtered, view === 'category' ? 'category' : (view === 'payment_mode' ? 'method' : 'category'), 'expense');
+
+            const incomeTbody = document.querySelector('#income-table tbody');
+            incomeTbody.innerHTML = '';
+            Object.entries(incomeGroups).forEach(([key, val]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>\( {key}</td><td> \){val.toFixed(2)}</td>`;
+                incomeTbody.appendChild(row);
+            });
+
+            const expenseTbody = document.querySelector('#expense-table tbody');
+            expenseTbody.innerHTML = '';
+            Object.entries(expenseGroups).forEach(([key, val]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>\( {key}</td><td> \){val.toFixed(2)}</td>`;
+                expenseTbody.appendChild(row);
+            });
+
+            // Charts
+            const expenseLabels = Object.keys(expenseGroups);
+            const expenseData = Object.values(expenseGroups);
+
+            if (pieChart) pieChart.destroy();
+            pieChart = new Chart(document.getElementById('pie-chart'), {
+                type: 'pie',
+                data: {
+                    labels: expenseLabels,
+                    datasets: [{ data: expenseData, backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#E7E9ED', '#F7464A', '#949FB1'] }]
+                },
+                options: { title: { display: true, text: 'Spending by Category (Pie)' } }
+            });
+
+            if (barChart) barChart.destroy();
+            barChart = new Chart(document.getElementById('bar-chart'), {
+                type: 'bar',
+                data: {
+                    labels: expenseLabels,
+                    datasets: [{ label: 'Expenses', data: expenseData, backgroundColor: '#36A2EB' }]
+                },
+                options: { title: { display: true, text: 'Spending by Category (Bar)' } }
+            });
+
+            // Balance Trend
+            const dates = [...new Set(filtered.map(t => t.date))].sort();
+            const balanceTrend = [];
+            let balance = 0;
+            dates.forEach(date => {
+                filtered.filter(t => t.date === date).forEach(t => {
+                    balance += t.type === 'income' ? t.amount : -t.amount;
+                });
+                balanceTrend.push(balance);
+            });
+
+            if (lineChart) lineChart.destroy();
+            lineChart = new Chart(document.getElementById('line-chart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{ label: 'Balance Trend', data: balanceTrend, borderColor: '#FF6384' }]
+                },
+                options: { title: { display: true, text: 'Balance Trend' } }
+            });
+        }
+
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text('Income & Expenses Report', 10, 10);
+            // Add tables (simplified)
+            let y = 20;
+            doc.text('Income:', 10, y);
+            y += 10;
+            const incomeTable = document.getElementById('income-table');
+            incomeTable.querySelectorAll('tr').forEach(row => {
+                let text = Array.from(row.cells).map(cell => cell.textContent).join(' | ');
+                doc.text(text, 10, y);
+                y += 10;
+            });
+            doc.text('Expenses:', 10, y);
+            y += 10;
+            const expenseTable = document.getElementById('expense-table');
+            expenseTable.querySelectorAll('tr').forEach(row => {
+                let text = Array.from(row.cells).map(cell => cell.textContent).join(' | ');
+                doc.text(text, 10, y);
+                y += 10;
+            });
+            doc.save('report.pdf');
+        }
+
+        function exportExcel() {
+            const wb = XLSX.utils.book_new();
+            const wsData = [['Category', 'Total (Income)']];
+            document.querySelector('#income-table tbody').querySelectorAll('tr').forEach(row => {
+                wsData.push(Array.from(row.cells).map(cell => cell.textContent));
+            });
+            wsData.push(['Category', 'Total (Expense)']);
+            document.querySelector('#expense-table tbody').querySelectorAll('tr').forEach(row => {
+                wsData.push(Array.from(row.cells).map(cell => cell.textContent));
+            });
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, 'Report');
+            XLSX.writeFile(wb, 'report.xlsx');
+        }
+
+        function shareWhatsApp() {
+            let text = 'Income & Expenses Report\n\nIncome:\n';
+            document.querySelector('#income-table tbody').querySelectorAll('tr').forEach(row => {
+                text += Array.from(row.cells).map(cell => cell.textContent).join(': ') + '\n';
+            });
+            text += '\nExpenses:\n';
+            document.querySelector('#expense-table tbody').querySelectorAll('tr').forEach(row => {
+                text += Array.from(row.cells).map(cell => cell.textContent).join(': ') + '\n';
+            });
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // Initial show
+    // Auto-open the correct section if URL has a parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const section = urlParams.get('section');
+    if (section) {
+        showSection(section);
+    }
+        showSection('add-transaction');
+    </script>
+</body>
+</html>
