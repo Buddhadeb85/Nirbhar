@@ -198,3 +198,12 @@ button:hover {
   background: #0f172a;
 }
 
+/* ===============================
+   MOBILE
+================================ */
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+  }
+}
+
