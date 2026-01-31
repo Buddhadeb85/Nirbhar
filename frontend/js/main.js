@@ -16,82 +16,59 @@ function calculateBudget() {
   result.style.color = savings >= 0 ? "green" : "red";
 }
 
-/* =========================================
-   CLEAN RESPONSIVE MULTI-LEVEL MENU SCRIPT
-   Works with plain HTML + CSS
-========================================= */
+document.addEventListener("DOMContentLoaded", function () {
 
-/* ---------- ELEMENT REFERENCES ---------- */
-const sidebar = document.getElementById("sidebar");
-const toggleBtn = document.getElementById("toggleBtn");
+  const sidebar = document.getElementById("sidebar");
+  const toggleBtn = document.getElementById("toggleBtn");
 
-/* ---------- SAFETY CHECK ---------- */
-if (!sidebar || !toggleBtn) {
-  console.error("Sidebar or Toggle Button not found");
-}
-
-/* ---------- TOGGLE SIDEBAR ---------- */
-toggleBtn.addEventListener("click", function (e) {
-  e.stopPropagation(); // prevent outside click close
-  sidebar.classList.toggle("closed");
-});
-
-/* ---------- MULTI-LEVEL SUBMENU TOGGLE ---------- */
-document.querySelectorAll(".menu-item.has-children").forEach(function (item) {
-  item.addEventListener("click", function (e) {
-    e.stopPropagation(); // stop parent close
-
-    item.classList.toggle("open");
-
-    const subMenu = item.nextElementSibling;
-    if (!subMenu) return;
-
-    subMenu.style.display =
-      subMenu.style.display === "block" ? "none" : "block";
+  /* Toggle menu */
+  toggleBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    sidebar.classList.toggle("closed");
   });
-});
 
-/* ---------- MENU ITEM NAVIGATION ---------- */
-document.querySelectorAll(".menu-item[data-link]").forEach(function (item) {
-  item.addEventListener("click", function (e) {
-    e.stopPropagation(); // do not close immediately
+  /* Multi-level submenu */
+  document.querySelectorAll(".menu-item.has-children").forEach(function (item) {
+    item.addEventListener("click", function (e) {
+      e.stopPropagation();
+      item.classList.toggle("open");
 
-    const link = item.getAttribute("data-link");
-    if (link) {
-      window.location.href = link;
+      const subMenu = item.nextElementSibling;
+      if (subMenu) {
+        subMenu.style.display =
+          subMenu.style.display === "block" ? "none" : "block";
+      }
+    });
+  });
+
+  /* Navigation */
+  document.querySelectorAll(".menu-item[data-link]").forEach(function (item) {
+    item.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const link = item.getAttribute("data-link");
+      if (link) window.location.href = link;
+    });
+  });
+
+  /* Outside click close */
+  document.addEventListener("click", function (e) {
+    if (
+      window.innerWidth < 768 &&
+      !sidebar.contains(e.target) &&
+      !toggleBtn.contains(e.target)
+    ) {
+      sidebar.classList.add("closed");
     }
   });
-});
 
-/* ---------- CLICK OUTSIDE TO CLOSE (MOBILE) ---------- */
-document.addEventListener("click", function (e) {
-  const clickedInsideMenu = sidebar.contains(e.target);
-  const clickedToggle = toggleBtn.contains(e.target);
-
-  if (
-    window.innerWidth < 768 &&
-    !clickedInsideMenu &&
-    !clickedToggle
-  ) {
-    sidebar.classList.add("closed");
+  /* Resize logic (NO AUTO OPEN) */
+  function handleMenuResize() {
+    if (window.innerWidth < 768) {
+      sidebar.classList.add("closed");
+    }
   }
-});
 
-/* ---------- AUTO COLLAPSE / EXPAND ON RESIZE ---------- */
-function handleMenuResize() {
-  if (window.innerWidth >= 768) {
-    sidebar.classList.remove("closed");
-  } else {
-    sidebar.classList.add("closed");
-  }
-}
+  handleMenuResize();
+  window.addEventListener("resize", handleMenuResize);
 
-handleMenuResize();
-window.addEventListener("resize", handleMenuResize);
-
-/* ---------- OPTIONAL: ESC KEY TO CLOSE ---------- */
-document.addEventListener("keydown", function (e) {
-  if (e.key === "Escape") {
-    sidebar.classList.add("closed");
-  }
 });
