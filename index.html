@@ -6,6 +6,37 @@
   <link rel="stylesheet" href="frontend/css/style.css">
 </head>
 <body>
+<div class="topbar">
+  <div class="toggle-btn" id="toggleBtn">☰</div>
+<div class="brand"><h1>Nirbhar</h1></div>
+</div>
+
+<div class="sidebar closed" id="sidebar">
+
+  <div class="menu-item" data-link="dashboard.html">Dashboard</div>
+
+  <div class="menu-item has-children">Finance</div>
+  <div class="sub-menu">
+
+    <div class="menu-item" data-link="budget.html">Budget Planner</div>
+
+    <div class="menu-item has-children">Expenses</div>
+    <div class="sub-menu">
+      <div class="menu-item" data-link="daily.html">Daily</div>
+      <div class="menu-item" data-link="monthly.html">Monthly</div>
+    </div>
+
+    <div class="menu-item" data-link="reports.html">Reports</div>
+
+  </div>
+
+  <div class="menu-item has-children">Learning</div>
+  <div class="sub-menu">
+    <div class="menu-item" data-link="basics.html">Basics</div>
+    <div class="menu-item" data-link="investing.html">Investing</div>
+  </div>
+
+</div>
 
   <!-- HEADER -->
   <header class="header">
