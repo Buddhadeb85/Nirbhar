@@ -16,61 +16,69 @@ function calculateBudget() {
   result.style.color = savings >= 0 ? "green" : "red";
 }
 
-/* --------------------------------
-   MULTI LEVEL TOGGLE manu bar
--------------------------------- */
+/* =========================================
+   CLEAN RESPONSIVE MULTI-LEVEL MENU SCRIPT
+   Works with plain HTML + CSS
+========================================= */
+
+/* ---------- ELEMENT REFERENCES ---------- */
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("toggleBtn");
-const main = document.getElementById("mainContent");
 
-/* --------------------------------
-   TOGGLE SIDEBAR
--------------------------------- */
-toggleBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
+/* ---------- SAFETY CHECK ---------- */
+if (!sidebar || !toggleBtn) {
+  console.error("Sidebar or Toggle Button not found");
+}
+
+/* ---------- TOGGLE SIDEBAR ---------- */
+toggleBtn.addEventListener("click", function (e) {
+  e.stopPropagation(); // prevent outside click close
   sidebar.classList.toggle("closed");
 });
 
-/* --------------------------------
-   MULTI LEVEL TOGGLE
--------------------------------- */
-document.querySelectorAll(".menu-item.has-children").forEach(item => {
-  item.addEventListener("click", (e) => {
-    e.stopPropagation();
+/* ---------- MULTI-LEVEL SUBMENU TOGGLE ---------- */
+document.querySelectorAll(".menu-item.has-children").forEach(function (item) {
+  item.addEventListener("click", function (e) {
+    e.stopPropagation(); // stop parent close
+
     item.classList.toggle("open");
 
-    const sub = item.nextElementSibling;
-    sub.style.display = sub.style.display === "block" ? "none" : "block";
+    const subMenu = item.nextElementSibling;
+    if (!subMenu) return;
+
+    subMenu.style.display =
+      subMenu.style.display === "block" ? "none" : "block";
   });
 });
 
-/* --------------------------------
-   PAGE NAVIGATION
--------------------------------- */
-document.querySelectorAll(".menu-item[data-link]").forEach(item => {
-  item.addEventListener("click", (e) => {
-    e.stopPropagation();
-    window.location.href = item.dataset.link;
+/* ---------- MENU ITEM NAVIGATION ---------- */
+document.querySelectorAll(".menu-item[data-link]").forEach(function (item) {
+  item.addEventListener("click", function (e) {
+    e.stopPropagation(); // do not close immediately
+
+    const link = item.getAttribute("data-link");
+    if (link) {
+      window.location.href = link;
+    }
   });
 });
 
-/* --------------------------------
-   CLICK OUTSIDE → CLOSE (MOBILE)
--------------------------------- */
-document.addEventListener("click", (e) => {
+/* ---------- CLICK OUTSIDE TO CLOSE (MOBILE) ---------- */
+document.addEventListener("click", function (e) {
+  const clickedInsideMenu = sidebar.contains(e.target);
+  const clickedToggle = toggleBtn.contains(e.target);
+
   if (
     window.innerWidth < 768 &&
-    !sidebar.contains(e.target) &&
-    !toggleBtn.contains(e.target)
+    !clickedInsideMenu &&
+    !clickedToggle
   ) {
     sidebar.classList.add("closed");
   }
 });
 
-/* --------------------------------
-   AUTO HANDLE RESIZE
--------------------------------- */
-function handleResize() {
+/* ---------- AUTO COLLAPSE / EXPAND ON RESIZE ---------- */
+function handleMenuResize() {
   if (window.innerWidth >= 768) {
     sidebar.classList.remove("closed");
   } else {
@@ -78,7 +86,12 @@ function handleResize() {
   }
 }
 
-handleResize();
-window.addEventListener("resize", handleResize);
+handleMenuResize();
+window.addEventListener("resize", handleMenuResize);
 
-
+/* ---------- OPTIONAL: ESC KEY TO CLOSE ---------- */
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") {
+    sidebar.classList.add("closed");
+  }
+});
